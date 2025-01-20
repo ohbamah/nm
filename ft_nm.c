@@ -74,10 +74,8 @@ void	ft_nm(char* file)
 {
 	t_nm	nm;
 	init_nm_struct(&nm, file);
-	if (!handle_errors(nm))
-		return ;
-	ft_printf("%d\n", PAGE_SIZE);
-	ft_nm_body(&nm);
+	if (handle_errors(nm))
+		ft_nm_body(&nm);
 	destroy_nm_struct(&nm);
 	handle_errors(nm);
 }
