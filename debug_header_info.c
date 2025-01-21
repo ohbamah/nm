@@ -3,107 +3,58 @@
 /*                                                        :::      ::::::::   */
 /*   debug_header_info.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bama <bama@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: ymanchon <ymanchon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/21 01:08:55 by bama              #+#    #+#             */
-/*   Updated: 2025/01/21 03:24:07 by bama             ###   ########.fr       */
+/*   Updated: 2025/01/21 16:03:38 by ymanchon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_nm.h"
 #include "libft.h"
 
-int	isELF(nmByte8U header_magic_number[4])
+void	nm_print_header_info(const t_nm_generic_header* __restrict__ header, int flag)
 {
-	if (header_magic_number[0] == 0x7f && !ft_strncmp((char*)&header_magic_number[1], "ELF", 3))
-		return (1);
-	return (0);
-}
-
-int	ELFbits(nmByte8U val)
-{
-	if (val == ELFCLASSNONE)
-		return (0);
-	else if (val == ELFCLASS32)
-		return (32);
-	else if (val == ELFCLASS64)
-		return (64);
-	return (0);
-}
-
-const char*	whichEndianness(nmByte8U val)
-{
-	if (val == ELFDATANONE)
-		return ("None");
-	else if (val == ELFDATA2LSB)
-		return ("Little (LSB)");
-	else if (val == ELFDATA2MSB)
-		return ("Big (MSB)");
-	return ("Unknow");
-}
-
-const char*	whichProcTarget(nmWord16U val)
-{
-	switch (val)
+	if (flag == NM_ELF_HEADER)
 	{
-		case EM_NONE:
-			return ("None");
-		case EM_M32:
-			return ("AT&T WE 32100");
-		case EM_SPARC:
-			return ("Sun Microsystems SPARC");
-		case EM_386:
-			return ("Intel 80386");
-		case EM_68K:
-			return ("Motorola 68000");
-		case EM_88K:
-			return ("Motorola 88000");
-		case EM_860:
-			return ("Intel i860 (80860)");
-		case EM_MIPS:
-			return ("MIPS RS3000 (big-endian only)");
-		case EM_PARISC:
-			return ("HP/PA");
-		case EM_SPARC32PLUS:
-			return ("SPARC with enhanced instruction set");
-		case EM_960:
-			return ("Intel i960");
-		case EM_PPC:
-			return ("PowerPC");
-		case EM_PPC64:
-			return ("PowerPC 64-bit");
-		case EM_S390:
-			return ("IBM S/390");
-		case EM_ARM:
-			return ("ARM");
-		case EM_SH:
-			return ("Renesas SuperH");
-		case EM_SPARCV9:
-			return ("SPARC v9 64-bit");
-		case EM_IA_64:
-			return ("Intel Itanium (IA64)");
-		case EM_X86_64:
-			return ("AMD x86-64");
-		case EM_VAX:
-			return ("DEC Vax");
-		case EM_RISCV:
-			return ("RISC-V");
-		default:
-			return ("Unknow");
+		ft_printf("\t\e[1mEN-TÊTE:\e[0m\n");
+		ft_printf("\tNombres magiques : 0x%x 0x%x 0x%x 0x%x\n", ((t_elf64_header*)header)->identification_field.magic_numbers[0], ((t_elf64_header*)header)->identification_field.magic_numbers[1], ((t_elf64_header*)header)->identification_field.magic_numbers[2], ((t_elf64_header*)header)->identification_field.magic_numbers[3]);
+		ft_printf("\tELF%d\n", ELFbits(((t_elf64_header*)header)->identification_field.bits_archi));
+		ft_printf("\tBoutisme (endianness) : %s\n", whichEndianness(((t_elf64_header*)header)->identification_field.endianness));
+		ft_printf("\tHeader format version : %d\n", ((t_elf64_header*)header)->identification_field.header_format_version);
+		ft_printf("\tABI : %d\n", ((t_elf64_header*)header)->identification_field.ABI);
+		ft_printf("\tABI version : %d\n", ((t_elf64_header*)header)->identification_field.ABI_version);
+		ft_printf("\tType de fichier : %s\n", whichTypeFile(((t_elf64_header*)header)->file_type));
+		ft_printf("\tProcesseur (machine) cible : %s\n", whichProcTarget(((t_elf64_header*)header)->proc_target));
+		ft_printf("\tVersion : %d\n", ((t_elf64_header*)header)->version);
+		ft_printf("\tAddresse du point d'entrée : 0x%x\n", ((t_elf64_header*)header)->entry_point);
+		printf("\tDébut des en-têtes de programme : %ld (octets)\n", ((t_elf64_header*)header)->header_table_offset);
+		printf("\tDébut des en-têtes de section : %ld (octets)\n", ((t_elf64_header*)header)->sections_table_offset);
+		ft_printf("\tNombre d'en-têtes de programme : %d\n", ((t_elf64_header*)header)->eNis);
+		ft_printf("\tNombre d'en-têtes de section : %d\n", ((t_elf64_header*)header)->eNiHtP);
+		ft_printf("\tTaille des en-têtes de programmes : %d (octets)\n", ((t_elf64_header*)header)->eiStsize);
+		ft_printf("\tTaille des en-têtes de section : %d (octets)\n", ((t_elf64_header*)header)->eiHtPsize);
+		ft_printf("\tTable d'index des chaînes d'en-têtes de section : %d\n", ((t_elf64_header*)header)->IitsH_ascted_wtcSN);
+		ft_printf("\tProccessor flags : %d\n", ((t_elf64_header*)header)->proc_flags);
+		ft_printf("\tHeader size : %d\n", ((t_elf64_header*)header)->header_size);
+		write(STDOUT_FILENO, "\n", 1);
 	}
-}
-
-const char*	whichTypeFile(nmWord16U val)
-{
-	if (val == ET_NONE)
-		return ("None");
-	else if (val == ET_REL)
-		return ("Relocatable");
-	else if (val == ET_EXEC)
-		return ("Executable");
-	else if (val == ET_DYN)
-		return ("Shared object (DYN)");
-	else if (val == ET_CORE)
-		return ("Core file");
-	return ("Unknow");
+	else if (flag == NM_PROGRAM_HEADER)
+	{
+		ft_printf("\t\e[1mEN-TÊTES du PROGRAMME:\e[0m\n");
+		ft_printf("\tType de segment : %s\n", kindSegmentType(((t_elf64_program_header*)header)->segment_type));
+		ft_printf("\tSegment offset : %d\n", ((t_elf64_program_header*)header)->segment_offset);
+		ft_printf("\tAdresse virtuelle d'emplacement du segment : %d\n", ((t_elf64_program_header*)header)->VAddress_of_segment);
+		ft_printf("\tAdresse physique d'emplacement du segment : %d\n", ((t_elf64_program_header*)header)->PAddress_of_segment);
+		ft_printf("\tFlag de dependance du segment : %d\n", ((t_elf64_program_header*)header)->segment_dep_flags);
+		ft_printf("\tTaille du segment : %d\n", ((t_elf64_program_header*)header)->segment_size);
+		ft_printf("\tAlignement memoire : %d\n", ((t_elf64_program_header*)header)->segment_alignement);
+		ft_printf("\tTaille du segment en memoire : %d\n", ((t_elf64_program_header*)header)->segment_mem_size);
+		write(STDOUT_FILENO, "\n", 1);
+	}
+	else if (flag == NM_SECTION_HEADER)
+	{
+		ft_printf("\t\e[1mEN-TÊTES des SECTIONS:\e[0m\n");
+		ft_printf("\tSection : %d\n", ((t_elf64_section_header*)header)->type);
+	}
 }

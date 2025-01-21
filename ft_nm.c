@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_nm.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bama <bama@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: ymanchon <ymanchon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/20 17:41:43 by ymanchon          #+#    #+#             */
-/*   Updated: 2025/01/21 03:16:33 by bama             ###   ########.fr       */
+/*   Updated: 2025/01/21 16:00:16 by ymanchon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,15 +20,34 @@
 // Mapper sur plusieurs pages lorsque la taille depasse la PAGE_SIZE
 // Supporter le 32 bits
 
-static void	ft_nm_body(t_nm* nm_s, t_nm_options options)
+static void	handle_options(t_nm* nm_s, t_nm_options options)
 {
 	if (options.header)
-		nm_print_header_info((t_nm_generic_header*)nm_s->bin_header.elf64, sizeof(t_elf64_header));
-	//if (options.program_headers)
-	//	nm_printf_program_headers();
-	//if (options.section_headers)
-	//	nm_print_section_headers();
-	
+	{
+		if (nm_s->elf_headers.bits == 32)
+			nm_print_header_info((t_nm_generic_header*)nm_s->elf_headers.h32b, NM_ELF_HEADER);
+		else if (nm_s->elf_headers.bits == 64)
+			nm_print_header_info((t_nm_generic_header*)nm_s->elf_headers.h64b, NM_ELF_HEADER);
+	}
+	if (options.program_headers)
+	{
+		if (nm_s->elf_headers.bits == 32)
+			nm_print_header_info((t_nm_generic_header*)nm_s->elf_headers.program_h32b, NM_PROGRAM_HEADER);
+		else if (nm_s->elf_headers.bits == 64)
+			nm_print_header_info((t_nm_generic_header*)nm_s->elf_headers.program_h64b, NM_PROGRAM_HEADER);
+	}
+	if (options.section_headers)
+	{
+		if (nm_s->elf_headers.bits == 32)
+			nm_print_header_info((t_nm_generic_header*)nm_s->elf_headers.section_h32b, NM_SECTION_HEADER);
+		else if (nm_s->elf_headers.bits == 64)
+			nm_print_header_info((t_nm_generic_header*)nm_s->elf_headers.section_h64b, NM_SECTION_HEADER);
+	}
+}
+
+static void	ft_nm_body(t_nm* nm_s, t_nm_options options)
+{
+	handle_options(nm_s, options);
 }
 
 static void	ft_nm(char* file, t_nm_options options)

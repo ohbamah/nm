@@ -1,1 +1,1 @@
-.objs/./utils.obj: utils.c ft_nm.h libft/libft.h
+.objs/./utils.obj: utils.c ft_nm.h ft_elf.h libft/libft.h
