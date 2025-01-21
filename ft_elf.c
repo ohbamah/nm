@@ -6,7 +6,7 @@
 /*   By: ymanchon <ymanchon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/21 14:07:09 by ymanchon          #+#    #+#             */
-/*   Updated: 2025/01/21 14:51:26 by ymanchon         ###   ########.fr       */
+/*   Updated: 2025/01/21 18:32:39 by ymanchon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -137,4 +137,61 @@ const char* kindSegmentType(nmDouble32U val)
 		default:
 			return ("Unknow");
 	}
+}
+
+const char*	kindSectionType(nmDouble32U val)
+{
+	switch (val)
+	{
+		case SHT_NULL:
+			return ("Section header table entry unused.");
+		case SHT_PROGBITS:
+			return ("Programme data");
+		case SHT_SYMTAB:
+			return ("Symbol table");
+		case SHT_STRTAB:
+			return ("String table");
+		case SHT_RELA:
+			return ("Relocation entries with addends");
+		case SHT_HASH:
+			return ("Symbol hash table");
+		case SHT_DYNAMIC:
+			return ("Dynamic linking information");
+		case SHT_NOTE:
+			return ("Notes");
+		case SHT_NOBITS:
+			return ("Program space with no data (bss)");
+		case SHT_REL:
+			return ("Relocation entries, no addends");
+		case SHT_SHLIB:
+			return ("Reserved");
+		case SHT_DYNSYM:
+			return ("Dynamic linker symbol table");
+		case SHT_INIT_ARRAY:
+			return ("Array of constructors");
+		case SHT_FINI_ARRAY:
+			return ("Array of destructors");
+		case SHT_PREINIT_ARRAY:
+			return ("Array of pre-constructors");
+		case SHT_NUM:
+			return ("Number of defined types");
+		case SHT_LOOS:
+			return ("Start OS-specific");
+		default:
+			return ("Unknow");
+	}
+}
+
+// archi = 32/64
+//Todo: an array of ULL (for each section address non-null found)
+t_nm_generic_header*	findAddressOfSectionType(nmDouble32U sectionType, t_nm_generic_header** header, int count, int archi)
+{
+	for (int i = 0 ; i < count ; ++i)
+	{ 
+		if (archi == 64 && (((t_elf64_section_header**)header)[i])->type == sectionType)
+			return ((((t_nm_generic_header**)header)[i]));
+		else if (archi == 32 && (((t_elf32_section_header**)header)[i])->type == sectionType)
+			return ((((t_nm_generic_header**)header)[i]));
+	}
+	return (0);
 }

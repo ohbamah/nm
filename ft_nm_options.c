@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_nm_options.c                                    :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bama <bama@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: ymanchon <ymanchon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/21 02:18:45 by bama              #+#    #+#             */
-/*   Updated: 2025/01/21 02:55:01 by bama             ###   ########.fr       */
+/*   Updated: 2025/01/21 18:55:03 by ymanchon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -34,6 +34,8 @@ void	ft_nm_options(int* ac_start_index, t_nm_options* options, int ac, char** av
 				options->program_headers = 1;
 			else if (!ft_strcmp(av[i], "--header"))
 				options->header = 1;
+			//else if (!ft_strcmp(av[i], "--segment-names"))
+			//	options->segment_names = 1;
 		}
 		else
 		{
@@ -51,10 +53,13 @@ void	ft_nm_options(int* ac_start_index, t_nm_options* options, int ac, char** av
 					options->program_headers = 1;
 				else if (!ft_strncmp(&av[i][j], "S", 1))
 					options->section_headers = 1;
+				//else if (!ft_strncmp(&av[i][j], "s", 1))
+				//	options->segment_names = 1;
 			}
 		}
 	}
-	*ac_start_index = i;
+	if (ac_start_index)
+		*ac_start_index = i;
 	//ft_printf("header : %d\n", options->header);
 	//ft_printf("program header : %d\n", options->program_headers);
 	//ft_printf("section header : %d\n", options->section_headers);

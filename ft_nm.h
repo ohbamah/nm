@@ -6,7 +6,7 @@
 /*   By: ymanchon <ymanchon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/20 17:40:38 by ymanchon          #+#    #+#             */
-/*   Updated: 2025/01/21 15:46:41 by ymanchon         ###   ########.fr       */
+/*   Updated: 2025/01/21 17:55:58 by ymanchon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,6 +15,8 @@
 
 # define NM_INIT			-1
 # define NM_DESTROY			1
+
+# define NM_NO_SIZE			0
 
 # define NM_SUCCESS			0
 # define NM_FAILED_MMAP		1
@@ -44,6 +46,7 @@ typedef struct s_nm_options
 	int	header;
 	int	section_headers;
 	int	program_headers;
+	//int	segment_names;
 }	t_nm_options;
 
 typedef struct s_nm
@@ -62,13 +65,13 @@ typedef struct s_nm
 		};
 		union
 		{
-			t_elf64_program_header*	program_h64b;
-			t_elf32_program_header*	program_h32b;
+			t_elf64_program_header**	program_h64b;
+			t_elf32_program_header**	program_h32b;
 		};
 		union
 		{
-			t_elf64_section_header*	section_h64b;
-			t_elf32_section_header*	section_h32b;
+			t_elf64_section_header**	section_h64b;
+			t_elf32_section_header**	section_h32b;
 		};
 	}				elf_headers;
 }	t_nm;
@@ -77,6 +80,6 @@ void	ft_nm_options(int* ac_start_index, t_nm_options* options, int ac, char** av
 void	init_nm_struct(t_nm* nm_s, char* file);
 void	destroy_nm_struct(t_nm *nm_s);
 int		handle_errors(t_nm nm_s, int flag);
-void	nm_print_header_info(const t_nm_generic_header* __restrict__ header, int flag);
+void	nm_print_header_info(const t_nm_generic_header* __restrict__ header, int size, int flag);
 
 #endif

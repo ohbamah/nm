@@ -6,7 +6,7 @@
 #    By: ymanchon <ymanchon@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/05/13 16:21:19 by ymanchon          #+#    #+#              #
-#    Updated: 2025/01/21 14:08:55 by ymanchon         ###   ########.fr        #
+#    Updated: 2025/01/21 18:38:53 by ymanchon         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -48,7 +48,7 @@ OBJS = $(SRCS:%.c=$(OBJS_DIR)/%.obj)
 
 DEPS = $(OBJS:%.obj=%.d)
 
-CFLAGS = -Wall -Wextra -MMD
+CFLAGS = -Wall -Wextra -MMD -g3
 
 INCLUDES = -I$(LIBFT_P) -I.
 

@@ -6,14 +6,15 @@
 /*   By: ymanchon <ymanchon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/21 01:08:55 by bama              #+#    #+#             */
-/*   Updated: 2025/01/21 16:03:38 by ymanchon         ###   ########.fr       */
+/*   Updated: 2025/01/21 18:30:02 by ymanchon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_nm.h"
 #include "libft.h"
 
-void	nm_print_header_info(const t_nm_generic_header* __restrict__ header, int flag)
+// size is only for NM_SECTION_HEADER flag
+void	nm_print_header_info(const t_nm_generic_header* __restrict__ header, int size, int flag)
 {
 	if (flag == NM_ELF_HEADER)
 	{
@@ -28,12 +29,12 @@ void	nm_print_header_info(const t_nm_generic_header* __restrict__ header, int fl
 		ft_printf("\tProcesseur (machine) cible : %s\n", whichProcTarget(((t_elf64_header*)header)->proc_target));
 		ft_printf("\tVersion : %d\n", ((t_elf64_header*)header)->version);
 		ft_printf("\tAddresse du point d'entrée : 0x%x\n", ((t_elf64_header*)header)->entry_point);
-		printf("\tDébut des en-têtes de programme : %ld (octets)\n", ((t_elf64_header*)header)->header_table_offset);
-		printf("\tDébut des en-têtes de section : %ld (octets)\n", ((t_elf64_header*)header)->sections_table_offset);
-		ft_printf("\tNombre d'en-têtes de programme : %d\n", ((t_elf64_header*)header)->eNis);
-		ft_printf("\tNombre d'en-têtes de section : %d\n", ((t_elf64_header*)header)->eNiHtP);
-		ft_printf("\tTaille des en-têtes de programmes : %d (octets)\n", ((t_elf64_header*)header)->eiStsize);
-		ft_printf("\tTaille des en-têtes de section : %d (octets)\n", ((t_elf64_header*)header)->eiHtPsize);
+		printf("\tDébut des en-têtes de programme : %ld (octets)\n", ((t_elf64_header*)header)->program_headers_offset);
+		printf("\tDébut des en-têtes de section : %ld (octets)\n", ((t_elf64_header*)header)->section_headers_offset);
+		ft_printf("\tNombre d'en-têtes de programme : %d\n", ((t_elf64_header*)header)->program_headers_count);
+		ft_printf("\tNombre d'en-têtes de section : %d\n", ((t_elf64_header*)header)->section_headers_count);
+		ft_printf("\tTaille des en-têtes de programmes : %d (octets)\n", ((t_elf64_header*)header)->program_headers_size);
+		ft_printf("\tTaille des en-têtes de section : %d (octets)\n", ((t_elf64_header*)header)->section_headers_size);
 		ft_printf("\tTable d'index des chaînes d'en-têtes de section : %d\n", ((t_elf64_header*)header)->IitsH_ascted_wtcSN);
 		ft_printf("\tProccessor flags : %d\n", ((t_elf64_header*)header)->proc_flags);
 		ft_printf("\tHeader size : %d\n", ((t_elf64_header*)header)->header_size);
@@ -42,19 +43,20 @@ void	nm_print_header_info(const t_nm_generic_header* __restrict__ header, int fl
 	else if (flag == NM_PROGRAM_HEADER)
 	{
 		ft_printf("\t\e[1mEN-TÊTES du PROGRAMME:\e[0m\n");
-		ft_printf("\tType de segment : %s\n", kindSegmentType(((t_elf64_program_header*)header)->segment_type));
-		ft_printf("\tSegment offset : %d\n", ((t_elf64_program_header*)header)->segment_offset);
-		ft_printf("\tAdresse virtuelle d'emplacement du segment : %d\n", ((t_elf64_program_header*)header)->VAddress_of_segment);
-		ft_printf("\tAdresse physique d'emplacement du segment : %d\n", ((t_elf64_program_header*)header)->PAddress_of_segment);
-		ft_printf("\tFlag de dependance du segment : %d\n", ((t_elf64_program_header*)header)->segment_dep_flags);
-		ft_printf("\tTaille du segment : %d\n", ((t_elf64_program_header*)header)->segment_size);
-		ft_printf("\tAlignement memoire : %d\n", ((t_elf64_program_header*)header)->segment_alignement);
-		ft_printf("\tTaille du segment en memoire : %d\n", ((t_elf64_program_header*)header)->segment_mem_size);
+		ft_printf("\tType de segment : %s\n", kindSegmentType((*(t_elf64_program_header**)header)->segment_type));
+		ft_printf("\tSegment offset : %d\n", (*(t_elf64_program_header**)header)->segment_offset);
+		ft_printf("\tAdresse virtuelle d'emplacement du segment : %d\n", (*(t_elf64_program_header**)header)->VAddress_of_segment);
+		ft_printf("\tAdresse physique d'emplacement du segment : %d\n", (*(t_elf64_program_header**)header)->PAddress_of_segment);
+		ft_printf("\tFlag de dependance du segment : %d\n", (*(t_elf64_program_header**)header)->segment_dep_flags);
+		ft_printf("\tTaille du segment : %d\n", (*(t_elf64_program_header**)header)->segment_size);
+		ft_printf("\tAlignement memoire : %d\n", (*(t_elf64_program_header**)header)->segment_alignement);
+		ft_printf("\tTaille du segment en memoire : %d\n", (*(t_elf64_program_header**)header)->segment_mem_size);
 		write(STDOUT_FILENO, "\n", 1);
 	}
 	else if (flag == NM_SECTION_HEADER)
 	{
 		ft_printf("\t\e[1mEN-TÊTES des SECTIONS:\e[0m\n");
-		ft_printf("\tSection : %d\n", ((t_elf64_section_header*)header)->type);
+		for (int i = 0 ; i < size ; ++i)
+			ft_printf("\tSection '%s' at %p (%d octets)\n", kindSectionType((((t_elf64_section_header**)header)[i])->type), (((t_elf64_section_header**)header)[i])->VAddress_of_section, (((t_elf64_section_header**)header)[i])->size);
 	}
 }

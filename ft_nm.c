@@ -6,7 +6,7 @@
 /*   By: ymanchon <ymanchon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/20 17:41:43 by ymanchon          #+#    #+#             */
-/*   Updated: 2025/01/21 16:00:16 by ymanchon         ###   ########.fr       */
+/*   Updated: 2025/01/21 19:02:29 by ymanchon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,23 +25,23 @@ static void	handle_options(t_nm* nm_s, t_nm_options options)
 	if (options.header)
 	{
 		if (nm_s->elf_headers.bits == 32)
-			nm_print_header_info((t_nm_generic_header*)nm_s->elf_headers.h32b, NM_ELF_HEADER);
+			nm_print_header_info((t_nm_generic_header*)nm_s->elf_headers.h32b, NM_NO_SIZE, NM_ELF_HEADER);
 		else if (nm_s->elf_headers.bits == 64)
-			nm_print_header_info((t_nm_generic_header*)nm_s->elf_headers.h64b, NM_ELF_HEADER);
+			nm_print_header_info((t_nm_generic_header*)nm_s->elf_headers.h64b, NM_NO_SIZE, NM_ELF_HEADER);
 	}
 	if (options.program_headers)
 	{
 		if (nm_s->elf_headers.bits == 32)
-			nm_print_header_info((t_nm_generic_header*)nm_s->elf_headers.program_h32b, NM_PROGRAM_HEADER);
+			nm_print_header_info((t_nm_generic_header*)nm_s->elf_headers.program_h32b, nm_s->elf_headers.h32b->program_headers_count, NM_PROGRAM_HEADER);
 		else if (nm_s->elf_headers.bits == 64)
-			nm_print_header_info((t_nm_generic_header*)nm_s->elf_headers.program_h64b, NM_PROGRAM_HEADER);
+			nm_print_header_info((t_nm_generic_header*)nm_s->elf_headers.program_h64b, nm_s->elf_headers.h64b->program_headers_count, NM_PROGRAM_HEADER);
 	}
 	if (options.section_headers)
 	{
 		if (nm_s->elf_headers.bits == 32)
-			nm_print_header_info((t_nm_generic_header*)nm_s->elf_headers.section_h32b, NM_SECTION_HEADER);
+			nm_print_header_info((t_nm_generic_header*)nm_s->elf_headers.section_h32b, nm_s->elf_headers.h32b->section_headers_count, NM_SECTION_HEADER);
 		else if (nm_s->elf_headers.bits == 64)
-			nm_print_header_info((t_nm_generic_header*)nm_s->elf_headers.section_h64b, NM_SECTION_HEADER);
+			nm_print_header_info((t_nm_generic_header*)nm_s->elf_headers.section_h64b, nm_s->elf_headers.h64b->section_headers_count, NM_SECTION_HEADER);
 	}
 }
 
@@ -65,11 +65,19 @@ int	main(int ac, char** av)
 	int	i = 1;
 	t_nm_options	options = {0};
 	ft_nm_options(&i, &options, ac, av);
-	for ( ; i < ac ; ++i)
+	if (ac - i > 0)
 	{
-		ft_printf("\e[1;34m%s:\e[0m\n", av[i]);
-		ft_nm(av[i], options);
-		write(STDOUT_FILENO, "\n", 1);
+		int	i_start = i;
+		for ( ; i < ac ; ++i)
+		{
+			if (ac - i_start > 1)
+				ft_printf("\e[1;34m%s:\e[0m\n", av[i]);
+			ft_nm(av[i], options);
+			if (ac - i_start > 1)
+				write(STDOUT_FILENO, "\n", 1);
+		}
 	}
+	else
+		ft_nm("a.out", options);
 	return (0);
 }

@@ -6,7 +6,7 @@
 /*   By: ymanchon <ymanchon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/20 23:15:22 by bama              #+#    #+#             */
-/*   Updated: 2025/01/21 15:57:42 by ymanchon         ###   ########.fr       */
+/*   Updated: 2025/01/21 19:05:01 by ymanchon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,17 +20,36 @@ inline static void	setup_32_or_64b_headers(t_nm* nm_s)
 	if (nm_s->elf_headers.bits == 32)
 	{
 		nm_s->elf_headers.h32b = (t_elf32_header*)nm_s->data;
-		nm_s->elf_headers.program_h32b = (t_elf32_program_header*)(nm_s->data + nm_s->elf_headers.h32b->header_table_offset);
-		nm_s->elf_headers.section_h32b = (t_elf32_section_header*)(nm_s->data + nm_s->elf_headers.h32b->sections_table_offset);
+		nm_s->elf_headers.program_h32b = (t_elf32_program_header**)malloc(nm_s->elf_headers.h32b->program_headers_count * sizeof(t_elf32_program_header*)); // !check malloc
+		nm_s->elf_headers.section_h32b = (t_elf32_section_header**)malloc(nm_s->elf_headers.h32b->section_headers_count * sizeof(t_elf64_section_header*)); // !check malloc
+		nm_s->elf_headers.program_h32b[0] = (t_elf32_program_header*)(nm_s->data + nm_s->elf_headers.h32b->program_headers_offset);
+		nm_s->elf_headers.section_h32b[0] = (t_elf32_section_header*)(nm_s->data + nm_s->elf_headers.h32b->section_headers_offset);
 	}
 	else
 	{
-		nm_s->elf_headers.program_h64b = (t_elf64_program_header*)(nm_s->data + nm_s->elf_headers.h64b->header_table_offset);
-		nm_s->elf_headers.section_h64b = (t_elf64_section_header*)(nm_s->data + nm_s->elf_headers.h64b->sections_table_offset);
+		nm_s->elf_headers.program_h64b = (t_elf64_program_header**)malloc(nm_s->elf_headers.h64b->program_headers_count * sizeof(t_elf64_program_header*)); // !check malloc
+		nm_s->elf_headers.section_h64b = (t_elf64_section_header**)malloc(nm_s->elf_headers.h64b->section_headers_count * sizeof(t_elf64_section_header*)); // !check malloc
+		for (int i = 0 ; i < nm_s->elf_headers.h64b->program_headers_count || i < nm_s->elf_headers.h64b->section_headers_count ; ++i)
+		{
+			if (i < nm_s->elf_headers.h64b->program_headers_count)
+				nm_s->elf_headers.program_h64b[i] = (t_elf64_program_header*)(nm_s->data + nm_s->elf_headers.h64b->program_headers_offset + sizeof(t_elf64_program_header) * i);
+			if (i < nm_s->elf_headers.h64b->section_headers_count)
+				nm_s->elf_headers.section_h64b[i] = (t_elf64_section_header*)(nm_s->data + nm_s->elf_headers.h64b->section_headers_offset + sizeof(t_elf64_section_header) * i);
+		}
 	}
-		//Todo: Cast des données de sections/segments vers une structure appropriée
-	//nm_s->bin_segment/section = (t_elf64/32_segment/section*)(nm_s->data + nm_s->bin_header.elf64/32->header_size);
-	//printf("$%s$\n", (char*)(nm_s->data + nm_s->elf_headers.h64b->sections_table_offset));
+	t_elf64_section_header*	test = (t_elf64_section_header*)findAddressOfSectionType(FT_ELF_STRING_TABLE, (t_nm_generic_header**)nm_s->elf_headers.section_h64b, nm_s->elf_headers.h64b->section_headers_count, nm_s->elf_headers.bits);
+	if (test <= 0)
+		return ;
+	char*	string_table = nm_s->data + test->offset + 1;
+	unsigned long i = 0;
+	char *current_string = string_table;
+    while (i < test->size)
+	{
+        printf("Chaîne dans la table : %x--> %s\n", test->VAddress_of_section + i, current_string);
+        // Avancer jusqu'à la chaîne suivante (en sautant au caractère nul)
+		i += ft_strlen(current_string) + 1;
+        current_string += ft_strlen(current_string) + 1;
+    }
 }
 
 void	init_nm_struct(t_nm* nm_s, char* file)
@@ -75,6 +94,10 @@ inline void	destroy_nm_struct(t_nm *nm_s)
 	if (nm_s->fd != -1)
 		if (close(nm_s->fd) == -1)
 			nm_s->_err = NM_FAILED_CLOSE;
+	if (nm_s->elf_headers.program_h64b)
+		free(nm_s->elf_headers.program_h64b);
+	if (nm_s->elf_headers.section_h64b)
+		free(nm_s->elf_headers.section_h64b);
 }
 
 inline int	handle_errors(t_nm nm_s, int flag)

@@ -6,12 +6,21 @@
 /*   By: ymanchon <ymanchon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/21 14:05:37 by ymanchon          #+#    #+#             */
-/*   Updated: 2025/01/21 16:00:37 by ymanchon         ###   ########.fr       */
+/*   Updated: 2025/01/21 18:45:16 by ymanchon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef FT_ELF_H
 #define FT_ELF_H
+
+# define FT_ELF_PROGRAM_DATA		SHT_PROGBITS
+# define FT_ELF_STRING_TABLE		SHT_STRTAB
+# define FT_ELF_SYMBOL_TABLE		SHT_SYMTAB
+# define FT_ELF_SYMBOL_HASH_TABLE	SHT_HASH
+# define FT_ELF_DYN_INFO			SHT_DYNAMIC
+# define FT_ELF_NOTES				SHT_NOTE
+# define FT_ELF_BSS					SHT_NOBITS
+# define FT_ELF_DYN_TABLE			SHT_DYNSYM
 
 # include <elf.h>
 
@@ -49,15 +58,15 @@ typedef struct s_elf64_header
 	nmWord16U				proc_target;
 	nmDouble32				version;
 	nmQuad64				entry_point;
-	nmQuad64U				header_table_offset;
-	nmQuad64U				sections_table_offset;
+	nmQuad64U				program_headers_offset;
+	nmQuad64U				section_headers_offset;
 	nmDouble32U				proc_flags;
 	nmWord16U				header_size;
-	nmWord16U				eiStsize;			// Size of an entry in the section header table (in bytes)
-	nmWord16U				eNis;				// Number of entries in the section header table
-	nmWord16U				eiHtPsize;			// Size of an entry in the table containing the programme header (in bytes)
-	nmWord16U				eNiHtP;				// Number of entries in the table containing the programme header
-	nmWord16U				IitsH_ascted_wtcSN;	// Index in the table of section headings of the entry associated with the table containing the names of the sections
+	nmWord16U				program_headers_size;	// Size of an entry in the section header table (in bytes)
+	nmWord16U				program_headers_count;	// Number of entries in the section header table
+	nmWord16U				section_headers_size;	// Size of an entry in the table containing the programme header (in bytes)
+	nmWord16U				section_headers_count;	// Number of entries in the table containing the programme header
+	nmWord16U				IitsH_ascted_wtcSN;		// Index in the table of section headings of the entry associated with the table containing the names of the sections
 }	t_elf64_header;
 
 // Header struct for ELF 32bits binary file
@@ -68,15 +77,15 @@ typedef struct s_elf32_header
 	nmWord16U				proc_target;
 	nmDouble32				version;
 	nmDouble32				entry_point;
-	nmDouble32U				header_table_offset;
-	nmDouble32U				sections_table_offset;
+	nmDouble32U				program_headers_offset;
+	nmDouble32U				section_headers_offset;
 	nmDouble32U				proc_flags;
 	nmWord16U				header_size;
-	nmWord16U				eiStsize;			// Size of an entry in the section header table (in bytes)
-	nmWord16U				eNis;				// Number of entries in the section header table
-	nmWord16U				eiHtPsize;			// Size of an entry in the table containing the programme header (in bytes)
-	nmWord16U				eNiHtP;				// Number of entries in the table containing the programme header
-	nmWord16U				IitsH_ascted_wtcSN;	// Index in the table of section headings of the entry associated with the table containing the names of the sections
+	nmWord16U				program_headers_size;	// Size of an entry in the section header table (in bytes)
+	nmWord16U				program_headers_count;	// Number of entries in the section header table
+	nmWord16U				section_headers_size;	// Size of an entry in the table containing the programme header (in bytes)
+	nmWord16U				section_headers_count;	// Number of entries in the table containing the programme header
+	nmWord16U				IitsH_ascted_wtcSN;		// Index in the table of section headings of the entry associated with the table containing the names of the sections
 }	t_elf32_header;
 
 typedef struct s_elf64_program_header
@@ -89,7 +98,7 @@ typedef struct s_elf64_program_header
 	nmQuad64	segment_size;	// Size in bytes of the segment in the file image. May be 0.
 	nmQuad64	segment_mem_size; // Size in bytes of the segment in memory. May be 0.
 	nmQuad64	segment_alignement;  // 0 and 1 specify no alignment. Otherwise should be a positive, integral power of 2, with p_vaddr equating p_offset modulus p_align.
-	nmByte8U	__end_tamping__[8];
+	//nmByte8U	__end_tamping__[8];
 }	t_elf64_program_header;
 
 typedef struct s_elf32_program_header
@@ -102,7 +111,7 @@ typedef struct s_elf32_program_header
 	nmQuad64	segment_mem_size; // Size in bytes of the segment in memory. May be 0.
 	nmDouble32	segment_dep_flags;	// only 32bits architecture
 	nmQuad64	segment_alignement;  // 0 and 1 specify no alignment. Otherwise should be a positive, integral power of 2, with p_vaddr equating p_offset modulus p_align.
-	nmByte8U	__end_tamping__[4];
+	//nmByte8U	__end_tamping__[4];
 }	t_elf32_program_header;
 
 typedef struct s_elf64_section_header
@@ -117,7 +126,7 @@ typedef struct s_elf64_section_header
 	nmDouble32U	info;	// Contains extra information about the section. This field is used for several purposes, depending on the type of section.
 	nmQuad64U	required_alignement; // Contains the required alignment of the section. This field must be a power of two. 
 	nmQuad64U	entry_size;	// Contains the size, in bytes, of each entry, for sections that contain fixed-size entries. Otherwise, this field contains zero.
-	nmByte8U	__end_tamping__[8];
+	//nmByte8U	__end_tamping__[8];
 }	t_elf64_section_header;
 
 typedef struct s_elf32_section_header
@@ -132,14 +141,16 @@ typedef struct s_elf32_section_header
 	nmDouble32U	info;	// Contains extra information about the section. This field is used for several purposes, depending on the type of section.
 	nmDouble32U	required_alignement; // Contains the required alignment of the section. This field must be a power of two. 
 	nmDouble32U	entry_size;	// Contains the size, in bytes, of each entry, for sections that contain fixed-size entries. Otherwise, this field contains zero.
-	nmByte8U	__end_tamping__[4];
+	//nmByte8U	__end_tamping__[4];
 }	t_elf32_section_header;
 
-const char*	whichEndianness(nmByte8U header_value);
-int			ELFbits(nmByte8U header_value);
-int			isELF(nmByte8U header_magic_number[4]);
-const char*	whichTypeFile(nmWord16U header_value);
-const char*	whichProcTarget(nmWord16U header_value);
-const char* kindSegmentType(nmDouble32U val);
+const char*				whichEndianness(nmByte8U header_value);
+int						ELFbits(nmByte8U header_value);
+int						isELF(nmByte8U header_magic_number[4]);
+const char*				whichTypeFile(nmWord16U header_value);
+const char*				whichProcTarget(nmWord16U header_value);
+const char* 			kindSegmentType(nmDouble32U val);
+const char*				kindSectionType(nmDouble32U val);
+t_nm_generic_header*	findAddressOfSectionType(nmDouble32U sectionType, t_nm_generic_header** header, int count, int archi);
 
 #endif
