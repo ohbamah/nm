@@ -6,7 +6,7 @@
 /*   By: ymanchon <ymanchon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/20 23:15:22 by bama              #+#    #+#             */
-/*   Updated: 2025/01/21 19:05:01 by ymanchon         ###   ########.fr       */
+/*   Updated: 2025/01/21 19:11:41 by ymanchon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -45,7 +45,8 @@ inline static void	setup_32_or_64b_headers(t_nm* nm_s)
 	char *current_string = string_table;
     while (i < test->size)
 	{
-        printf("Chaîne dans la table : %x--> %s\n", test->VAddress_of_section + i, current_string);
+		if (ft_isprint(current_string[0]))
+        	printf("%x --> \"%s\"\n", test->VAddress_of_section + i, current_string);
         // Avancer jusqu'à la chaîne suivante (en sautant au caractère nul)
 		i += ft_strlen(current_string) + 1;
         current_string += ft_strlen(current_string) + 1;
