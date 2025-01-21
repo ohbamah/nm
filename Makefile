@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: ymanchon <ymanchon@student.42.fr>          +#+  +:+       +#+         #
+#    By: bama <bama@student.42.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/05/13 16:21:19 by ymanchon          #+#    #+#              #
-#    Updated: 2025/01/20 17:50:59 by ymanchon         ###   ########.fr        #
+#    Updated: 2025/01/21 02:19:09 by bama             ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -36,7 +36,10 @@ CC = @cc
 
 LMAKE = @make --no-print-directory -C
 
-SRCS =	./ft_nm.c
+SRCS =	./ft_nm_options.c \
+		./debug_header_info.c \
+		./utils.c \
+		./ft_nm.c
 
 OBJS_DIR = .objs
 
