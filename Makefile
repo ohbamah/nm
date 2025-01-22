@@ -6,7 +6,7 @@
 #    By: ymanchon <ymanchon@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/05/13 16:21:19 by ymanchon          #+#    #+#              #
-#    Updated: 2025/01/21 18:38:53 by ymanchon         ###   ########.fr        #
+#    Updated: 2025/01/22 16:11:00 by ymanchon         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -36,10 +36,13 @@ CC = @cc
 
 LMAKE = @make --no-print-directory -C
 
-SRCS =	./ft_nm_options.c \
-		./debug_header_info.c \
-		./utils.c \
-		./ft_elf.c \
+SRCS =	./elf_tools/elft_core.c \
+		./elf_tools/elft_print.c \
+		./elf_tools/elft_utils.c \
+		./elf_tools/elft_read.c \
+		\
+		./ft_nm_options.c \
+		./errors.c \
 		./ft_nm.c
 
 OBJS_DIR = .objs
@@ -50,7 +53,7 @@ DEPS = $(OBJS:%.obj=%.d)
 
 CFLAGS = -Wall -Wextra -MMD -g3
 
-INCLUDES = -I$(LIBFT_P) -I.
+INCLUDES = -I$(LIBFT_P) -I. -I./elf_tools/
 
 LIBFT_P = ./libft/
 LIBNAME = $(LIBFT_P)libft.a

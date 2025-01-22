@@ -5,59 +5,42 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: ymanchon <ymanchon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/01/20 17:41:43 by ymanchon          #+#    #+#             */
-/*   Updated: 2025/01/21 19:02:29 by ymanchon         ###   ########.fr       */
+/*   Created: 2025/01/22 15:32:04 by ymanchon          #+#    #+#             */
+/*   Updated: 2025/01/22 17:49:16 by ymanchon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "ft_nm.h"
-#include "libft.h"
 
-// ?Segments --> informations nécessaires à l'exécution du programme
-// ?Sections --> informations pour la résolution des liens (entre fonctions et le remplacement des données)
-
-// Mettre dans le fd=2(STDERR_FILENO) la sortie quand il y a une erreur
-// Mapper sur plusieurs pages lorsque la taille depasse la PAGE_SIZE
-// Supporter le 32 bits
-
-static void	handle_options(t_nm* nm_s, t_nm_options options)
+static void	handle_options(const t_nm* nm_s, t_nm_options options)
 {
 	if (options.header)
-	{
-		if (nm_s->elf_headers.bits == 32)
-			nm_print_header_info((t_nm_generic_header*)nm_s->elf_headers.h32b, NM_NO_SIZE, NM_ELF_HEADER);
-		else if (nm_s->elf_headers.bits == 64)
-			nm_print_header_info((t_nm_generic_header*)nm_s->elf_headers.h64b, NM_NO_SIZE, NM_ELF_HEADER);
-	}
-	if (options.program_headers)
-	{
-		if (nm_s->elf_headers.bits == 32)
-			nm_print_header_info((t_nm_generic_header*)nm_s->elf_headers.program_h32b, nm_s->elf_headers.h32b->program_headers_count, NM_PROGRAM_HEADER);
-		else if (nm_s->elf_headers.bits == 64)
-			nm_print_header_info((t_nm_generic_header*)nm_s->elf_headers.program_h64b, nm_s->elf_headers.h64b->program_headers_count, NM_PROGRAM_HEADER);
-	}
+		elft_debug_header(nm_s->elf->header);
 	if (options.section_headers)
-	{
-		if (nm_s->elf_headers.bits == 32)
-			nm_print_header_info((t_nm_generic_header*)nm_s->elf_headers.section_h32b, nm_s->elf_headers.h32b->section_headers_count, NM_SECTION_HEADER);
-		else if (nm_s->elf_headers.bits == 64)
-			nm_print_header_info((t_nm_generic_header*)nm_s->elf_headers.section_h64b, nm_s->elf_headers.h64b->section_headers_count, NM_SECTION_HEADER);
-	}
-}
-
-static void	ft_nm_body(t_nm* nm_s, t_nm_options options)
-{
-	handle_options(nm_s, options);
+		elft_debug_section_headers(nm_s->elf, nm_s->elf->header->section_headers_count);
+	//if (options.program_headers)
+	//	elft_debug_program_headers(nm_s->elf->pHeaders, nm_s->elf->header->program_headers_count);
 }
 
 static void	ft_nm(char* file, t_nm_options options)
 {
-	t_nm	nm;
-	init_nm_struct(&nm, file);
-	if (handle_errors(nm, NM_INIT))
-		ft_nm_body(&nm, options);
-	destroy_nm_struct(&nm);
-	handle_errors(nm, NM_DESTROY);
+	t_nm	nm_s = {0};
+	t_elf*	elft;
+
+	int	fd = open(file, O_RDONLY);
+	elft = elft_init(fd, PROT_READ, &nm_s._err);
+	nm_s.elf = elft;
+	if (!handle_errors(&nm_s, NM_INIT))
+		return ;
+
+	elft_read_header(elft);
+	elft_read_program_headers(elft);
+	elft_read_section_headers(elft);
+	handle_options(&nm_s, options);
+
+	nm_s._err = elft_destroy(elft);
+	handle_errors(&nm_s, NM_DESTROY);
+	close(fd);
 }
 
 int	main(int ac, char** av)
@@ -71,7 +54,7 @@ int	main(int ac, char** av)
 		for ( ; i < ac ; ++i)
 		{
 			if (ac - i_start > 1)
-				ft_printf("\e[1;34m%s:\e[0m\n", av[i]);
+				ft_printf("\e[1;36m%s:\e[0m\n", av[i]);
 			ft_nm(av[i], options);
 			if (ac - i_start > 1)
 				write(STDOUT_FILENO, "\n", 1);

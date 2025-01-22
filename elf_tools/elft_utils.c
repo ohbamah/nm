@@ -1,26 +1,34 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_elf.c                                           :+:      :+:    :+:   */
+/*   elft_utils.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: ymanchon <ymanchon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/01/21 14:07:09 by ymanchon          #+#    #+#             */
-/*   Updated: 2025/01/21 18:32:39 by ymanchon         ###   ########.fr       */
+/*   Created: 2025/01/22 14:49:44 by ymanchon          #+#    #+#             */
+/*   Updated: 2025/01/22 18:28:30 by ymanchon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_elf.h"
-#include "libft.h"
+#include "elft.h"
 
-int	isELF(nmByte8U header_magic_number[4])
+//Todo: an array of ULL (for each section address non-null found)
+t_elf_specific_header*	findAddressOfSectionType(elftDoubleU sectionType, t_elf_specific_header** header, int count)
+{
+	for (int i = 0 ; i < count ; ++i)
+		if ((((t_elf_section_header**)header)[i])->type == sectionType)
+			return ((((t_elf_specific_header**)header)[i]));
+	return (0);
+}
+
+int	isELF(elftByteU header_magic_number[4])
 {
 	if (header_magic_number[0] == 0x7f && !ft_strncmp((char*)&header_magic_number[1], "ELF", 3))
 		return (1);
 	return (0);
 }
 
-int	ELFbits(nmByte8U val)
+int	ELFbits(elftByteU val)
 {
 	if (val == ELFCLASSNONE)
 		return (0);
@@ -31,7 +39,7 @@ int	ELFbits(nmByte8U val)
 	return (0);
 }
 
-const char*	whichEndianness(nmByte8U val)
+const char*	whichEndianness(elftByteU val)
 {
 	if (val == ELFDATANONE)
 		return ("None");
@@ -108,7 +116,7 @@ const char*	whichTypeFile(nmWord16U val)
 	return ("Unknow");
 }
 
-const char* kindSegmentType(nmDouble32U val)
+const char* kindSegmentType(elftDoubleU val)
 {
 	switch (val)
 	{
@@ -139,7 +147,7 @@ const char* kindSegmentType(nmDouble32U val)
 	}
 }
 
-const char*	kindSectionType(nmDouble32U val)
+const char*	kindSectionType(elftDoubleU val)
 {
 	switch (val)
 	{
@@ -180,18 +188,4 @@ const char*	kindSectionType(nmDouble32U val)
 		default:
 			return ("Unknow");
 	}
-}
-
-// archi = 32/64
-//Todo: an array of ULL (for each section address non-null found)
-t_nm_generic_header*	findAddressOfSectionType(nmDouble32U sectionType, t_nm_generic_header** header, int count, int archi)
-{
-	for (int i = 0 ; i < count ; ++i)
-	{ 
-		if (archi == 64 && (((t_elf64_section_header**)header)[i])->type == sectionType)
-			return ((((t_nm_generic_header**)header)[i]));
-		else if (archi == 32 && (((t_elf32_section_header**)header)[i])->type == sectionType)
-			return ((((t_nm_generic_header**)header)[i]));
-	}
-	return (0);
 }

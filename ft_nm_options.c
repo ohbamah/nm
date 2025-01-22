@@ -6,12 +6,12 @@
 /*   By: ymanchon <ymanchon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/21 02:18:45 by bama              #+#    #+#             */
-/*   Updated: 2025/01/21 18:55:03 by ymanchon         ###   ########.fr       */
+/*   Updated: 2025/01/22 15:32:38 by ymanchon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "ft_nm.h"
 #include "libft.h"
+#include "ft_nm.h"
 
 static void	set_all_to_one(t_nm_options* options)
 {
