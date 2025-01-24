@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: ymanchon <ymanchon@student.42.fr>          +#+  +:+       +#+         #
+#    By: bama <bama@student.42.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/05/13 16:21:19 by ymanchon          #+#    #+#              #
-#    Updated: 2025/01/22 16:11:00 by ymanchon         ###   ########.fr        #
+#    Updated: 2025/01/22 23:45:37 by bama             ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -40,6 +40,7 @@ SRCS =	./elf_tools/elft_core.c \
 		./elf_tools/elft_print.c \
 		./elf_tools/elft_utils.c \
 		./elf_tools/elft_read.c \
+		./elf_tools/elft_parsing.c \
 		\
 		./ft_nm_options.c \
 		./errors.c \
@@ -51,7 +52,7 @@ OBJS = $(SRCS:%.c=$(OBJS_DIR)/%.obj)
 
 DEPS = $(OBJS:%.obj=%.d)
 
-CFLAGS = -Wall -Wextra -MMD -g3
+CFLAGS = -Wall -Wextra -Wno-unused-result -MMD -g3
 
 INCLUDES = -I$(LIBFT_P) -I. -I./elf_tools/
 

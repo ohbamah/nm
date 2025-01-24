@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_nm.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ymanchon <ymanchon@student.42.fr>          +#+  +:+       +#+        */
+/*   By: bama <bama@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 15:32:04 by ymanchon          #+#    #+#             */
-/*   Updated: 2025/01/22 17:49:16 by ymanchon         ###   ########.fr       */
+/*   Updated: 2025/01/23 00:55:01 by bama             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -20,6 +20,26 @@ static void	handle_options(const t_nm* nm_s, t_nm_options options)
 		elft_debug_section_headers(nm_s->elf, nm_s->elf->header->section_headers_count);
 	//if (options.program_headers)
 	//	elft_debug_program_headers(nm_s->elf->pHeaders, nm_s->elf->header->program_headers_count);
+}
+
+static void	ft_nm_body(const t_nm* nm_s)
+{
+	int		strtab_size;
+	char*	strtab = elft_get_strtab_section(nm_s->elf, &strtab_size);
+	t_elf_section_header* sym_header = elft_inspect_section_header(nm_s->elf, ELFTSH_SYMBOL, NULL);
+	t_elf_symbol*	sym = elft_jump_to_symbol(elft_get_raw(nm_s->elf)->data, sym_header);
+	t_elf_symbol*	tmp_sym;
+	for (int i = 0 ; i < sym_header->size / sizeof(t_elf_symbol) ; ++i)
+	{
+		tmp_sym = &sym[i];
+		if ((unsigned long)(strtab + tmp_sym->name_offset) >= (unsigned long)(strtab + strtab_size))
+			continue ;
+		if (tmp_sym->value > 0)
+			ft_printf("%p", tmp_sym->value);
+		else
+			ft_printf("\t");	
+		ft_printf("\t%s\n", strtab + tmp_sym->name_offset);
+	}
 }
 
 static void	ft_nm(char* file, t_nm_options options)
@@ -37,6 +57,7 @@ static void	ft_nm(char* file, t_nm_options options)
 	elft_read_program_headers(elft);
 	elft_read_section_headers(elft);
 	handle_options(&nm_s, options);
+	ft_nm_body(&nm_s);
 
 	nm_s._err = elft_destroy(elft);
 	handle_errors(&nm_s, NM_DESTROY);

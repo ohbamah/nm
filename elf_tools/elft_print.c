@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   elft_print.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ymanchon <ymanchon@student.42.fr>          +#+  +:+       +#+        */
+/*   By: bama <bama@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 15:34:23 by ymanchon          #+#    #+#             */
-/*   Updated: 2025/01/22 18:18:51 by ymanchon         ###   ########.fr       */
+/*   Updated: 2025/01/23 00:00:18 by bama             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -31,7 +31,7 @@ void	elft_debug_header(t_elf_header* header)
 	ft_printf("Nombre d'en-têtes de section : %d\n", header->section_headers_count);
 	ft_printf("Taille des en-têtes de programmes : %d (octets)\n", header->program_headers_size);
 	ft_printf("Taille des en-têtes de section : %d (octets)\n", header->section_headers_size);
-	ft_printf("Table d'index des chaînes d'en-têtes de section : %d\n", header->IitsH_ascted_wtcSN);
+	ft_printf("Table d'index des chaînes d'en-têtes de section : %d\n", header->sections_names_offset);
 	ft_printf("Proccessor flags : %d\n", header->proc_flags);
 	ft_printf("Header size : %d\n", header->header_size);
 	write(STDOUT_FILENO, "\n", 1);
@@ -45,18 +45,18 @@ void	elft_debug_program_headers(t_elf* elft, int count)
 
 void	elft_debug_section_headers(t_elf* elft, int count)
 {
-	t_elf_raw*				raw = elft_get_raw(elft);
-	t_elf_section_header*	elf_strtab = elft_inspect_section_header(elft, ELFTSH_STRING, NULL);
-	t_elf_section_header*	elftab = elft_inspect_section_header(elft, ELFTSH_DYNSYM, NULL);
+	//t_elf_raw*				raw = elft_get_raw(elft);
+	//t_elf_section_header*	elf_strtab = elft_inspect_section_header(elft, ELFTSH_STRING, NULL);
+	//t_elf_section_header*	elftab = elft_inspect_section_header(elft, ELFTSH_DYNSYM, NULL);
 
 	ft_printf("\e[1mEN-TÊTES de SECTION:\e[0m\n");
-	for (int i = 0 ; elftab && i < elftab->size ; ++i)
-	{
-		if ((raw->data + elftab->offset)[i] == '\0')
-			write(1, "\\0", 1);
-		else
-			write(1, &(raw->data + elftab->offset)[i], 1);
-	}
+	//for (int i = 0 ; elftab && i < elftab->size ; ++i)
+	//{
+	//	if ((raw->data + elftab->offset)[i] == '\0')
+	//		write(1, "\\0", 1);
+	//	else
+	//		write(1, &(raw->data + elftab->offset)[i], 1);
+	//}
 	for (int i = 0 ; i < count ; ++i)
 	{
 		if (elft->sHeaders[i]->VAddress_of_section == 0)

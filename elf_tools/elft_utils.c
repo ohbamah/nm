@@ -3,23 +3,14 @@
 /*                                                        :::      ::::::::   */
 /*   elft_utils.c                                       :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ymanchon <ymanchon@student.42.fr>          +#+  +:+       +#+        */
+/*   By: bama <bama@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 14:49:44 by ymanchon          #+#    #+#             */
-/*   Updated: 2025/01/22 18:28:30 by ymanchon         ###   ########.fr       */
+/*   Updated: 2025/01/23 00:43:17 by bama             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "elft.h"
-
-//Todo: an array of ULL (for each section address non-null found)
-t_elf_specific_header*	findAddressOfSectionType(elftDoubleU sectionType, t_elf_specific_header** header, int count)
-{
-	for (int i = 0 ; i < count ; ++i)
-		if ((((t_elf_section_header**)header)[i])->type == sectionType)
-			return ((((t_elf_specific_header**)header)[i]));
-	return (0);
-}
 
 int	isELF(elftByteU header_magic_number[4])
 {
@@ -50,7 +41,7 @@ const char*	whichEndianness(elftByteU val)
 	return ("Unknow");
 }
 
-const char*	whichProcTarget(nmWord16U val)
+const char*	whichProcTarget(elftWordU val)
 {
 	switch (val)
 	{
@@ -101,7 +92,7 @@ const char*	whichProcTarget(nmWord16U val)
 	}
 }
 
-const char*	whichTypeFile(nmWord16U val)
+const char*	whichTypeFile(elftWordU val)
 {
 	if (val == ET_NONE)
 		return ("None");
@@ -152,40 +143,38 @@ const char*	kindSectionType(elftDoubleU val)
 	switch (val)
 	{
 		case SHT_NULL:
-			return ("Section header table entry unused.");
+			return ("\e[30m[[unused]]\e[0m");
 		case SHT_PROGBITS:
-			return ("Programme data");
+			return ("\e[34mProgramme Data\e[0m");
 		case SHT_SYMTAB:
-			return ("Symbol table");
+			return ("\e[36mSYMTAB\e[0m (Symbol Table)");
 		case SHT_STRTAB:
-			return ("String table");
+			return ("\e[32mSTRTAB\e[0m (String Table)");
 		case SHT_RELA:
-			return ("Relocation entries with addends");
+			return ("\e[42mRELA\e[0m");
 		case SHT_HASH:
-			return ("Symbol hash table");
+			return ("\e[40mSYM_HASH_TAB\e[0m (Symbol Hash Table)");
 		case SHT_DYNAMIC:
-			return ("Dynamic linking information");
+			return ("\e[39mDYN_INFO\e[0m");
 		case SHT_NOTE:
-			return ("Notes");
+			return ("\e[38mNotes\e[0m");
 		case SHT_NOBITS:
-			return ("Program space with no data (bss)");
+			return ("\e[33mBSS, ROT, PLT\e[0m");
 		case SHT_REL:
-			return ("Relocation entries, no addends");
+			return ("\e[41mREL\e[0m");
 		case SHT_SHLIB:
-			return ("Reserved");
+			return ("\e[31mReserved\e[0m");
 		case SHT_DYNSYM:
-			return ("Dynamic linker symbol table");
+			return ("\e[35mDYNSYM\e[0m");
 		case SHT_INIT_ARRAY:
 			return ("Array of constructors");
 		case SHT_FINI_ARRAY:
 			return ("Array of destructors");
 		case SHT_PREINIT_ARRAY:
 			return ("Array of pre-constructors");
-		case SHT_NUM:
-			return ("Number of defined types");
 		case SHT_LOOS:
 			return ("Start OS-specific");
 		default:
-			return ("Unknow");
+			return ("\e[30mUnknow\e[0m");
 	}
 }

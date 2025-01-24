@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   elft_core.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ymanchon <ymanchon@student.42.fr>          +#+  +:+       +#+        */
+/*   By: bama <bama@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 15:17:17 by ymanchon          #+#    #+#             */
-/*   Updated: 2025/01/22 18:28:30 by ymanchon         ###   ########.fr       */
+/*   Updated: 2025/01/22 23:45:09 by bama             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -42,7 +42,7 @@ t_elf*	elft_init(int fd, int prot_flags, int* __restrict__ errc)
 				NULL);
 	t_elf_raw*	raw = elft_get_raw(elft);
 	elftByteU*	magicn = mmap(NULL, 4, PROT_READ, MAP_SHARED, fd, 0);
-	if (magicn <= 0)
+	if (magicn <= (elftByteU*)0)
 		return (set_errcode(ELFT_MMAP_FAILED, errc),
 				free(elft->__p), free(elft), NULL);
 	else if (!isELF(magicn))
@@ -51,7 +51,7 @@ t_elf*	elft_init(int fd, int prot_flags, int* __restrict__ errc)
 	munmap(magicn, 4);
 	raw->data_size = file_size(fd);
 	raw->data = mmap(NULL, raw->data_size, prot_flags, MAP_SHARED, fd, 0);
-	if (raw->data <= 0)
+	if (raw->data <= (char*)0)
 		return (set_errcode(ELFT_MMAP_FAILED, errc),
 				elft_destroy(elft), NULL);
 	set_errcode(ELFT_SUCCESS, errc);

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   elft.h                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ymanchon <ymanchon@student.42.fr>          +#+  +:+       +#+        */
+/*   By: bama <bama@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/21 14:05:37 by ymanchon          #+#    #+#             */
-/*   Updated: 2025/01/22 18:31:15 by ymanchon         ###   ########.fr       */
+/*   Updated: 2025/01/23 00:50:09 by bama             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -54,14 +54,6 @@ typedef unsigned short		elftWordU;
 typedef unsigned int		elftDoubleU;
 typedef unsigned long long	elftQuadU;
 
-typedef struct s_elf_generic_header
-{
-}	t_elf_generic_header;
-
-typedef struct s_elf_specific_header
-{
-}	t_elf_specific_header;
-
 typedef struct s_elf_identification
 {
 	elftByteU	magic_numbers[4];
@@ -90,7 +82,7 @@ typedef struct s_elf_header
 	elftWordU				program_headers_count;	// Number of entries in the section header table
 	elftWordU				section_headers_size;	// Size of an entry in the table containing the programme header (in bytes)
 	elftWordU				section_headers_count;	// Number of entries in the table containing the programme header
-	elftWordU				IitsH_ascted_wtcSN;		// Index in the table of section headings of the entry associated with the table containing the names of the sections
+	elftWordU				sections_names_offset;	// Index in the table of section headings of the entry associated with the table containing the names of the sections
 }	t_elf_header;
 
 # if defined(__x86_64__) || defined(__ppc64__) || defined(__arm64__)
@@ -181,7 +173,6 @@ const char*				whichTypeFile(elftWordU header_value);
 const char*				whichProcTarget(elftWordU header_value);
 const char* 			kindSegmentType(elftDoubleU val);
 const char*				kindSectionType(elftDoubleU val);
-t_elf_specific_header*	findAddressOfSectionType(elftDoubleU sectionType, t_elf_specific_header** header, int count);
 
 t_elf*					elft_init(int fd, int prot_flags, int* __restrict__ nullable_errorcode);
 int						elft_destroy(t_elf* elft);
@@ -191,10 +182,13 @@ void	elft_debug_header(t_elf_header* header);
 void	elft_debug_program_headers(t_elf* elft, int count);
 void	elft_debug_section_headers(t_elf* headers, int count);
 
+t_elf_symbol*	elft_jump_to_symbol(char* data, t_elf_section_header* h);
+char*			elft_get_strtab_section(t_elf* elft, int* strtab_size);
+
 int					elft_read_header(t_elf* elft);
 int					elft_read_program_headers(t_elf* elft);
 int					elft_read_section_headers(t_elf* elft);
 t_elf_program_header*	elft_inspect_program_header(t_elf* elft, int section_id);
-t_elf_section_header*	elft_inspect_section_header(t_elf* elft, int section_id, t_elf_section_header* current);
+t_elf_section_header*	elft_inspect_section_header(t_elf* elft, unsigned int section_id, t_elf_section_header* current);
 
 #endif
