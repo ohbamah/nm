@@ -6,7 +6,7 @@
 /*   By: bama <bama@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 23:34:43 by bama              #+#    #+#             */
-/*   Updated: 2025/01/27 00:51:10 by bama             ###   ########.fr       */
+/*   Updated: 2025/01/27 17:57:53 by bama             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -16,7 +16,7 @@
 // global	-> uppercase (no 'u', 'v' and 'w')
 char	elft_get_sym_type(t_elf* elft, t_elf_symbol* sym)
 {
-	char	stt = sym->info & 0xF;	// type
+	//char	stt = sym->info & 0xF;	// type
 	char	stb = sym->info >> 4;	// linking (binding)
 	int		shn = sym->index;		// index
 
@@ -49,11 +49,6 @@ char	elft_get_sym_type(t_elf* elft, t_elf_symbol* sym)
 	}
 	// if elft_get_symbol_name == __abi_tag <=> 'r'
 	return ('?');
-}
-
-inline char*	elft_get_symbol_name(t_elf* elft, t_elf_symbol* sym)
-{
-	//return (elft_get_specific_section(elft));
 }
 
 inline char*	elft_get_section_name(t_elf* elft, t_elf_section_header* section_header)

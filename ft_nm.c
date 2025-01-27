@@ -6,7 +6,7 @@
 /*   By: bama <bama@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 15:32:04 by ymanchon          #+#    #+#             */
-/*   Updated: 2025/01/27 00:29:59 by bama             ###   ########.fr       */
+/*   Updated: 2025/01/27 18:31:58 by bama             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -22,12 +22,13 @@ static void	handle_options(const t_nm* nm_s, t_nm_options options)
 	//	elft_debug_program_headers(nm_s->elf->pHeaders, nm_s->elf->header->program_headers_count);
 }
 
-static void	ft_nm_body(const t_nm* nm_s)
+static t_list*	ft_nm_body(const t_nm* nm_s)
 {
 	t_elf_sections_lst*	strlst_root = elft_init_sections_lst(nm_s->elf, ELFTSH_STRING);
 	t_elf_sections_lst*	strlst = strlst_root;
 	t_elf_sections_lst*	symlst_root = elft_init_sections_lst(nm_s->elf, ELFTSH_SYMBOL);
 	t_elf_sections_lst*	symlst = symlst_root;
+	t_list*				nm_lst = NULL;
 
 	while (symlst)
 	{
@@ -48,14 +49,15 @@ static void	ft_nm_body(const t_nm* nm_s)
 				if ((strlst->data + sym->name_offset)[0] && strlst->data + sym->name_offset < strlst->data + strlst->header->size)
 				{
 					char	type = elft_get_sym_type(nm_s->elf, sym);
-					if (type != 'a' && type != 'A')
-					{
-						if (sym->value > 0)
-							ft_printf("0000000000%x ", sym->value);
-						else
-							ft_printf("                 ");
-						ft_printf("%c %s\n", type, strlst->data + sym->name_offset);
-					}
+					t_nm_symbol_lst* new_symlst = malloc(sizeof(t_nm_symbol_lst));
+					if (!sym)
+						exit(1);
+					new_symlst->name = strlst->data + sym->name_offset;
+					new_symlst->address = sym->value;
+					new_symlst->type = type;
+					if (!ft_strcmp(new_symlst->name, "__abi_tag"))
+						new_symlst->type = 'r';
+					ft_lstadd_front(&nm_lst, ft_lstnew(new_symlst));
 				}
 			}
 			break ;
@@ -64,12 +66,52 @@ static void	ft_nm_body(const t_nm* nm_s)
 	}
 	elft_destroy_lst(strlst_root);
 	elft_destroy_lst(symlst_root);
+	return (nm_lst);
+}
+
+// ((t_nm_symbol_lst*)(i->content))
+static void	ft_nm_sort_sym(t_list** nmlst)
+{
+	t_list*	i = *nmlst;
+	while (i)
+	{
+		t_list*	j = *nmlst;
+		while (j)
+		{
+			unsigned long	iadd = ((t_nm_symbol_lst*)(i->content))->address;
+			unsigned long	jadd = ((t_nm_symbol_lst*)(j->content))->address;
+			if (iadd < jadd)
+				ft_swap_addr(&i->content, &j->content);
+			j = j->next;
+		}
+		i = i->next;
+	}
+}
+
+static void	ft_nm_print(const t_list* nmlst)
+{
+	t_nm_symbol_lst*	sym;
+
+	while (nmlst)
+	{
+		sym = (t_nm_symbol_lst*)nmlst->content;
+		if (sym->type != 'a' && sym->type != 'A')
+		{
+			if (sym->address > 0)
+				ft_printf("0000000000%x", sym->address);
+			else
+				ft_printf("                ", sym->address);
+			ft_printf(" %c %s\n", sym->type, sym->name);
+		}
+		nmlst = nmlst->next;
+	}
 }
 
 static void	ft_nm(char* file, t_nm_options options)
 {
-	t_nm	nm_s = {0};
+	t_list*	lst;
 	t_elf*	elft;
+	t_nm	nm_s = {0};
 
 	int	fd = open(file, O_RDONLY);
 	elft = elft_init(fd, PROT_READ, &nm_s._err);
@@ -81,8 +123,11 @@ static void	ft_nm(char* file, t_nm_options options)
 	elft_read_program_headers(elft);
 	elft_read_section_headers(elft);
 	handle_options(&nm_s, options);
-	ft_nm_body(&nm_s);
+	lst = ft_nm_body(&nm_s);
+	ft_nm_sort_sym(&lst);
+	ft_nm_print(lst);
 
+	ft_lstclear(&lst, free);
 	nm_s._err = elft_destroy(elft);
 	handle_errors(&nm_s, NM_DESTROY);
 	close(fd);

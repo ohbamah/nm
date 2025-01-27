@@ -6,7 +6,7 @@
 /*   By: bama <bama@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 15:15:50 by ymanchon          #+#    #+#             */
-/*   Updated: 2025/01/27 00:30:52 by bama             ###   ########.fr       */
+/*   Updated: 2025/01/27 18:15:17 by bama             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -28,10 +28,10 @@
 
 typedef struct s_nm_symbol
 {
-	char*			name;
-	char			type;
-	unsigned long	address;
-}	t_nm_symbol;
+	char*				name;
+	char				type;
+	unsigned long		address;
+}	t_nm_symbol_lst;
 
 typedef struct s_nm_options
 {
