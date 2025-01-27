@@ -6,11 +6,12 @@
 /*   By: bama <bama@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 15:34:23 by ymanchon          #+#    #+#             */
-/*   Updated: 2025/01/23 00:00:18 by bama             ###   ########.fr       */
+/*   Updated: 2025/01/26 18:15:32 by bama             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "elft.h"
+#include "libft.h"
 
 void	elft_debug_header(t_elf_header* header)
 {
@@ -31,7 +32,7 @@ void	elft_debug_header(t_elf_header* header)
 	ft_printf("Nombre d'en-têtes de section : %d\n", header->section_headers_count);
 	ft_printf("Taille des en-têtes de programmes : %d (octets)\n", header->program_headers_size);
 	ft_printf("Taille des en-têtes de section : %d (octets)\n", header->section_headers_size);
-	ft_printf("Table d'index des chaînes d'en-têtes de section : %d\n", header->sections_names_offset);
+	ft_printf("Table d'index des chaînes d'en-têtes de section : %d\n", header->sections_names_index);
 	ft_printf("Proccessor flags : %d\n", header->proc_flags);
 	ft_printf("Header size : %d\n", header->header_size);
 	write(STDOUT_FILENO, "\n", 1);
@@ -61,7 +62,7 @@ void	elft_debug_section_headers(t_elf* elft, int count)
 	{
 		if (elft->sHeaders[i]->VAddress_of_section == 0)
 			continue ;
-		ft_printf("[%d]\t%p -->\t%s\n", i, elft->sHeaders[i]->VAddress_of_section, kindSectionType(elft->sHeaders[i]->type));
+		ft_printf("[%d]\t%p -->\t%s\n", i, elft->sHeaders[i]->VAddress_of_section, elft_get_section_name(elft, elft->sHeaders[i]));
 	}
 	write(STDOUT_FILENO, "\n", 1);
 }

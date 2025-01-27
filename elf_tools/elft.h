@@ -6,7 +6,7 @@
 /*   By: bama <bama@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/21 14:05:37 by ymanchon          #+#    #+#             */
-/*   Updated: 2025/01/23 00:50:09 by bama             ###   ########.fr       */
+/*   Updated: 2025/01/26 18:40:06 by bama             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -36,12 +36,14 @@
 # define ELFT_MMAP_FAILED			3
 # define ELFT_INVALID_FILE_FORMAT	4
 
+# include <stdio.h>
 # include <stdlib.h>
 # include <unistd.h>
 # include <sys/stat.h>
 # include <sys/mman.h>
 # include <elf.h>
-# include "libft.h"
+# include <string.h>
+//# include "libft.h"
 
 typedef char		elftByte;
 typedef short		elftWord;
@@ -82,7 +84,7 @@ typedef struct s_elf_header
 	elftWordU				program_headers_count;	// Number of entries in the section header table
 	elftWordU				section_headers_size;	// Size of an entry in the table containing the programme header (in bytes)
 	elftWordU				section_headers_count;	// Number of entries in the table containing the programme header
-	elftWordU				sections_names_offset;	// Index in the table of section headings of the entry associated with the table containing the names of the sections
+	elftWordU				sections_names_index;	// Index in the table of section headings of the entry associated with the table containing the names of the sections
 }	t_elf_header;
 
 # if defined(__x86_64__) || defined(__ppc64__) || defined(__arm64__)
@@ -127,6 +129,13 @@ typedef struct s_elf_section_header
 	elftQuadU	entry_size;	// Contains the size, in bytes, of each entry, for sections that contain fixed-size entries. Otherwise, this field contains zero.
 	//elftByteU	__end_tamping__[8];
 }	t_elf_section_header;
+
+typedef struct	s_elft_section_lst
+{
+	char*						data;
+	t_elf_section_header*		header;
+	struct s_elft_section_lst*	next;
+}	t_elf_sections_lst;
 
 typedef struct s_elf
 {
@@ -182,13 +191,21 @@ void	elft_debug_header(t_elf_header* header);
 void	elft_debug_program_headers(t_elf* elft, int count);
 void	elft_debug_section_headers(t_elf* headers, int count);
 
-t_elf_symbol*	elft_jump_to_symbol(char* data, t_elf_section_header* h);
-char*			elft_get_strtab_section(t_elf* elft, int* strtab_size);
+char*	elft_get_shstrtab(t_elf* elft);
+char*	elft_get_section_name(t_elf* elft, t_elf_section_header* section_header);
 
 int					elft_read_header(t_elf* elft);
 int					elft_read_program_headers(t_elf* elft);
 int					elft_read_section_headers(t_elf* elft);
 t_elf_program_header*	elft_inspect_program_header(t_elf* elft, int section_id);
 t_elf_section_header*	elft_inspect_section_header(t_elf* elft, unsigned int section_id, t_elf_section_header* current);
+
+t_elf_sections_lst*	elft_init_sections_lst(t_elf* elft, unsigned int elftsh_flag);
+t_elf_sections_lst*	elft_add_node_lst(t_elf_sections_lst* root, t_elf_sections_lst* node);
+t_elf_sections_lst*	elft_create_node_lst(char* data, t_elf_section_header* header);
+void				elft_destroy_lst(t_elf_sections_lst* root);
+
+char	elft_get_sym_type(t_elf* elft, t_elf_symbol* sym);
+char*	elft_get_specific_section(t_elf* elft, unsigned int elftsh_flag, t_elf_section_header* section);
 
 #endif

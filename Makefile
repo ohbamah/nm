@@ -6,7 +6,7 @@
 #    By: bama <bama@student.42.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/05/13 16:21:19 by ymanchon          #+#    #+#              #
-#    Updated: 2025/01/22 23:45:37 by bama             ###   ########.fr        #
+#    Updated: 2025/01/26 17:18:35 by bama             ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -41,6 +41,7 @@ SRCS =	./elf_tools/elft_core.c \
 		./elf_tools/elft_utils.c \
 		./elf_tools/elft_read.c \
 		./elf_tools/elft_parsing.c \
+		./elf_tools/elft_lst.c \
 		\
 		./ft_nm_options.c \
 		./errors.c \

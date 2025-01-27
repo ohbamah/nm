@@ -6,25 +6,74 @@
 /*   By: bama <bama@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 23:34:43 by bama              #+#    #+#             */
-/*   Updated: 2025/01/23 00:23:59 by bama             ###   ########.fr       */
+/*   Updated: 2025/01/27 00:51:10 by bama             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "elft.h"
 
-// strtab_size --> nullable
-inline char*	elft_get_strtab_section(t_elf* elft, int* strtab_size)
+// local	-> lowercase
+// global	-> uppercase (no 'u', 'v' and 'w')
+char	elft_get_sym_type(t_elf* elft, t_elf_symbol* sym)
 {
-	t_elf_raw*	raw = elft_get_raw(elft);
-	t_elf_section_header* strtab_section = elft_inspect_section_header(elft, ELFTSH_STRING, NULL);
-	if (!strtab_section)
-		return (NULL);
-	if (strtab_size)
-		*strtab_size = strtab_section->size;
-	return (raw->data + strtab_section->offset);
+	char	stt = sym->info & 0xF;	// type
+	char	stb = sym->info >> 4;	// linking (binding)
+	int		shn = sym->index;		// index
+
+	if (shn == SHN_UNDEF)
+		return ((stb == STB_WEAK) ? 'w' : 'U');
+	t_elf_section_header* s = elft->sHeaders[0];
+	s = &s[shn];
+	//kindSectionType(2);
+	if (shn == SHN_COMMON)
+		return ('C');
+	else if (shn == SHN_ABS)
+		return ((stb == STB_WEAK) ? 'A' : 'a');
+	else
+	{
+		if (stb == STB_WEAK)
+			return ('W');
+		if (s->type == SHT_NOBITS && (s->flags & (SHF_ALLOC|SHF_WRITE)))
+			return ((stb == STB_LOCAL) ? 'b' : 'B');
+		else if (s->type == SHT_DYNAMIC || s->type == SHT_FINI_ARRAY || s->type == SHT_INIT_ARRAY)
+			return ((stb == STB_WEAK) ? 'D' : 'd');
+		else if (s->type == SHT_PROGBITS)
+		{
+			if (s->flags & SHF_EXECINSTR)
+				return ((stb == STB_LOCAL) ? 't' : 'T');
+			else if (s->flags & SHF_WRITE)
+				return ((stb == STB_LOCAL) ? 'd' : 'D');
+			else if (s->flags & SHF_ALLOC)
+				return ((stb == STB_LOCAL) ? 'r' : 'R');
+		}
+	}
+	// if elft_get_symbol_name == __abi_tag <=> 'r'
+	return ('?');
 }
 
-inline t_elf_symbol*	elft_jump_to_symbol(char* data, t_elf_section_header* header)
+inline char*	elft_get_symbol_name(t_elf* elft, t_elf_symbol* sym)
 {
-	return ((t_elf_symbol*)(data + header->offset));
+	//return (elft_get_specific_section(elft));
+}
+
+inline char*	elft_get_section_name(t_elf* elft, t_elf_section_header* section_header)
+{
+	return (elft_get_shstrtab(elft) + section_header->name_offset);
+}
+
+inline char*	elft_get_shstrtab(t_elf* elft)
+{
+	t_elf_raw*	raw = elft_get_raw(elft);
+
+	return (raw->data + (&(elft->sHeaders[0])[elft->header->sections_names_index])->offset);
+}
+
+inline char*	elft_get_specific_section(t_elf* elft, unsigned int elftsh_flag, t_elf_section_header* section)
+{
+	t_elf_raw*	raw = elft_get_raw(elft);
+	t_elf_section_header*	_section = elft_inspect_section_header(elft, elftsh_flag, section);
+	
+	if (!_section)
+		return (NULL);
+	return (raw->data + _section->offset);
 }

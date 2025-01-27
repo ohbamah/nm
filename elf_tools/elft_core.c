@@ -6,7 +6,7 @@
 /*   By: bama <bama@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 15:17:17 by ymanchon          #+#    #+#             */
-/*   Updated: 2025/01/22 23:45:09 by bama             ###   ########.fr       */
+/*   Updated: 2025/01/26 16:58:56 by bama             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 inline t_elf_raw*	elft_get_raw(t_elf* elft)
 {
-	return (((t_elf_raw*)elft->__p));
+	return (((t_elf_raw*)(elft->__p)));
 }
 
 static inline int	file_size(int fd)
@@ -35,7 +35,7 @@ t_elf*	elft_init(int fd, int prot_flags, int* __restrict__ errc)
 	if (fd == -1)
 		return (set_errcode(ELFT_INVALID_FD, errc),
 				NULL);
-	t_elf*	elft = ft_calloc(1, sizeof(t_elf));
+	t_elf*	elft = calloc(1, sizeof(t_elf));
 	elft->__p = malloc(sizeof(t_elf_raw));
 	if (!elft)
 		return (set_errcode(ELFT_MALLOC_FAILED, errc),

@@ -6,7 +6,7 @@
 /*   By: bama <bama@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 14:49:44 by ymanchon          #+#    #+#             */
-/*   Updated: 2025/01/23 00:43:17 by bama             ###   ########.fr       */
+/*   Updated: 2025/01/25 03:08:05 by bama             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -14,7 +14,7 @@
 
 int	isELF(elftByteU header_magic_number[4])
 {
-	if (header_magic_number[0] == 0x7f && !ft_strncmp((char*)&header_magic_number[1], "ELF", 3))
+	if (header_magic_number[0] == 0x7f && !strncmp((char*)&header_magic_number[1], "ELF", 3))
 		return (1);
 	return (0);
 }

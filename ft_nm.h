@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_nm.h                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: ymanchon <ymanchon@student.42.fr>          +#+  +:+       +#+        */
+/*   By: bama <bama@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 15:15:50 by ymanchon          #+#    #+#             */
-/*   Updated: 2025/01/22 17:48:47 by ymanchon         ###   ########.fr       */
+/*   Updated: 2025/01/27 00:30:52 by bama             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -25,6 +25,13 @@
 
 # include "libft.h"
 # include "elft.h"
+
+typedef struct s_nm_symbol
+{
+	char*			name;
+	char			type;
+	unsigned long	address;
+}	t_nm_symbol;
 
 typedef struct s_nm_options
 {
