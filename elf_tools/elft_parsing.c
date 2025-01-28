@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   elft_parsing.c                                     :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bama <bama@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: ymanchon <ymanchon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 23:34:43 by bama              #+#    #+#             */
-/*   Updated: 2025/01/27 17:57:53 by bama             ###   ########.fr       */
+/*   Updated: 2025/01/28 17:35:23 by ymanchon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,8 +46,9 @@ char	elft_get_sym_type(t_elf* elft, t_elf_symbol* sym)
 			else if (s->flags & SHF_ALLOC)
 				return ((stb == STB_LOCAL) ? 'r' : 'R');
 		}
+		else if (s->type == SHT_MIPS_DEBUG || s->type == SHT_ALPHA_DEBUG || s->type == SHT_MIPS_XLATE_DEBUG)
+			return ((stb == STB_LOCAL) ? 'n' : 'N');
 	}
-	// if elft_get_symbol_name == __abi_tag <=> 'r'
 	return ('?');
 }
 

@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   ft_nm.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: bama <bama@student.42.fr>                  +#+  +:+       +#+        */
+/*   By: ymanchon <ymanchon@student.42.fr>          +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2025/01/22 15:32:04 by ymanchon          #+#    #+#             */
-/*   Updated: 2025/01/27 18:31:58 by bama             ###   ########.fr       */
+/*   Updated: 2025/01/28 17:25:23 by ymanchon         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -69,7 +69,6 @@ static t_list*	ft_nm_body(const t_nm* nm_s)
 	return (nm_lst);
 }
 
-// ((t_nm_symbol_lst*)(i->content))
 static void	ft_nm_sort_sym(t_list** nmlst)
 {
 	t_list*	i = *nmlst;
@@ -78,9 +77,9 @@ static void	ft_nm_sort_sym(t_list** nmlst)
 		t_list*	j = *nmlst;
 		while (j)
 		{
-			unsigned long	iadd = ((t_nm_symbol_lst*)(i->content))->address;
-			unsigned long	jadd = ((t_nm_symbol_lst*)(j->content))->address;
-			if (iadd < jadd)
+			t_nm_symbol_lst*	ilst = ((t_nm_symbol_lst*)(i->content));
+			t_nm_symbol_lst*	jlst = ((t_nm_symbol_lst*)(j->content));
+			if (ilst->address < jlst->address || (ilst->type == 'w' || ilst->type == 'U'))
 				ft_swap_addr(&i->content, &j->content);
 			j = j->next;
 		}
@@ -97,7 +96,7 @@ static void	ft_nm_print(const t_list* nmlst)
 		sym = (t_nm_symbol_lst*)nmlst->content;
 		if (sym->type != 'a' && sym->type != 'A')
 		{
-			if (sym->address > 0)
+			if (sym->type != 'w' && sym->type != 'U')
 				ft_printf("0000000000%x", sym->address);
 			else
 				ft_printf("                ", sym->address);
