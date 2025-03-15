@@ -1,155 +1,119 @@
-/* ************************************************************************** */
-/*                                                                            */
-/*                                                        :::      ::::::::   */
-/*   ft_nm.c                                            :+:      :+:    :+:   */
-/*                                                    +:+ +:+         +:+     */
-/*   By: ymanchon <ymanchon@student.42.fr>          +#+  +:+       +#+        */
-/*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/01/22 15:32:04 by ymanchon          #+#    #+#             */
-/*   Updated: 2025/01/28 17:25:23 by ymanchon         ###   ########.fr       */
-/*                                                                            */
-/* ************************************************************************** */
-
 #include "ft_nm.h"
 
-static void	handle_options(const t_nm* nm_s, t_nm_options options)
+// local	-> lowercase
+// global	-> uppercase (no 'u', 'v' and 'w')
+char	elft_get_sym_type(t_elf* elft, t_elf_symfinder* symf)
 {
-	if (options.header)
-		elft_debug_header(nm_s->elf->header);
-	if (options.section_headers)
-		elft_debug_section_headers(nm_s->elf, nm_s->elf->header->section_headers_count);
-	//if (options.program_headers)
-	//	elft_debug_program_headers(nm_s->elf->pHeaders, nm_s->elf->header->program_headers_count);
-}
+	//char	stt = sym->info & 0xF;	// type
+	t_elf_symbol*	sym = symf->sym;
+	char			stb = sym->info >> 4;	// linking (binding)
+	int				shn = sym->index;		// index
 
-static t_list*	ft_nm_body(const t_nm* nm_s)
-{
-	t_elf_sections_lst*	strlst_root = elft_init_sections_lst(nm_s->elf, ELFTSH_STRING);
-	t_elf_sections_lst*	strlst = strlst_root;
-	t_elf_sections_lst*	symlst_root = elft_init_sections_lst(nm_s->elf, ELFTSH_SYMBOL);
-	t_elf_sections_lst*	symlst = symlst_root;
-	t_list*				nm_lst = NULL;
-
-	while (symlst)
+	if (!ft_strcmp(symf->name, "__abi_tag"))
+		return ('r');
+	if (shn == SHN_UNDEF)
+		return ((stb == STB_WEAK) ? 'w' : 'U');
+	t_elf_section_header* s = elft->sHeaders[0];
+	s = &s[shn];
+	if (shn == SHN_COMMON)
+		return ('C');
+	else if (shn == SHN_ABS)
+		return ((stb == STB_WEAK) ? 'A' : 'a');
+	else
 	{
-		if (!ft_strcmp(elft_get_section_name(nm_s->elf, symlst->header), ".symtab"))
-			break ;
-		symlst = symlst->next;
-	}
-	while (strlst)
-	{
-		if (!ft_strcmp(elft_get_section_name(nm_s->elf, strlst->header), ".strtab"))
+		if (stb == STB_WEAK)
+			return ('W');
+		if (s->type == SHT_NOBITS && (s->flags & (SHF_ALLOC|SHF_WRITE)))
+			return ((stb == STB_LOCAL) ? 'b' : 'B');
+		else if (s->type == SHT_DYNAMIC || s->type == SHT_FINI_ARRAY || s->type == SHT_INIT_ARRAY)
+			return ((stb == STB_WEAK) ? 'D' : 'd');
+		else if (s->type == SHT_PROGBITS)
 		{
-			unsigned long	j = 0;
-			t_elf_symbol*	sym;
-			while (j < symlst->header->size)
-			{
-				sym = (t_elf_symbol*)&symlst->data[j];
-				j += sizeof(t_elf_symbol);
-				if ((strlst->data + sym->name_offset)[0] && strlst->data + sym->name_offset < strlst->data + strlst->header->size)
-				{
-					char	type = elft_get_sym_type(nm_s->elf, sym);
-					t_nm_symbol_lst* new_symlst = malloc(sizeof(t_nm_symbol_lst));
-					if (!sym)
-						exit(1);
-					new_symlst->name = strlst->data + sym->name_offset;
-					new_symlst->address = sym->value;
-					new_symlst->type = type;
-					if (!ft_strcmp(new_symlst->name, "__abi_tag"))
-						new_symlst->type = 'r';
-					ft_lstadd_front(&nm_lst, ft_lstnew(new_symlst));
-				}
-			}
-			break ;
+			if (s->flags & SHF_EXECINSTR)
+				return ((stb == STB_LOCAL) ? 't' : 'T');
+			else if (s->flags & SHF_WRITE)
+				return ((stb == STB_LOCAL) ? 'd' : 'D');
+			else if (s->flags & SHF_ALLOC)
+				return ((stb == STB_LOCAL) ? 'r' : 'R');
 		}
-		strlst = strlst->next;
+		else if (s->type == SHT_MIPS_DEBUG || s->type == SHT_ALPHA_DEBUG || s->type == SHT_MIPS_XLATE_DEBUG)
+			return ((stb == STB_LOCAL) ? 'n' : 'N');
 	}
-	elft_destroy_lst(strlst_root);
-	elft_destroy_lst(symlst_root);
-	return (nm_lst);
+	return ('?');
 }
 
-static void	ft_nm_sort_sym(t_list** nmlst)
+void	print_tab(t_elf* elft, t_elf_symfinder** tab, int n)
 {
-	t_list*	i = *nmlst;
-	while (i)
+	int	i = -1;
+	while (++i < n)
 	{
-		t_list*	j = *nmlst;
-		while (j)
+		char	type = elft_get_sym_type(elft, tab[i]);
+		if (tab[i]->name && ft_strlen(tab[i]->name) > 1 && type != 'a')
 		{
-			t_nm_symbol_lst*	ilst = ((t_nm_symbol_lst*)(i->content));
-			t_nm_symbol_lst*	jlst = ((t_nm_symbol_lst*)(j->content));
-			if (ilst->address < jlst->address || (ilst->type == 'w' || ilst->type == 'U'))
-				ft_swap_addr(&i->content, &j->content);
-			j = j->next;
-		}
-		i = i->next;
-	}
-}
-
-static void	ft_nm_print(const t_list* nmlst)
-{
-	t_nm_symbol_lst*	sym;
-
-	while (nmlst)
-	{
-		sym = (t_nm_symbol_lst*)nmlst->content;
-		if (sym->type != 'a' && sym->type != 'A')
-		{
-			if (sym->type != 'w' && sym->type != 'U')
-				ft_printf("0000000000%x", sym->address);
+			char	format[23];
+			if (type == 'U')
+				ft_strlcpy(format, "% 17c \e[1m%c\e[0m %s\n", 23);
 			else
-				ft_printf("                ", sym->address);
-			ft_printf(" %c %s\n", sym->type, sym->name);
+				ft_strlcpy(format, "%016llx \e[1m%c\e[0m %s\n", 23);
+			printf(format, tab[i]->sym->value, type, tab[i]->name);
 		}
-		nmlst = nmlst->next;
 	}
 }
 
-static void	ft_nm(char* file, t_nm_options options)
+void	sort_tab(t_elf_symfinder*** tab, int n, cmpf fun)
 {
-	t_list*	lst;
-	t_elf*	elft;
-	t_nm	nm_s = {0};
+	t_elf_symfinder**	temp = *tab;
+	int					i = 0;
+	int					j;
+	int					g;
 
-	int	fd = open(file, O_RDONLY);
-	elft = elft_init(fd, PROT_READ, &nm_s._err);
-	nm_s.elf = elft;
-	if (!handle_errors(&nm_s, NM_INIT))
-		return ;
+	while (i < n)
+	{
+		j = 0;
+		while (j < n)
+		{
+			if (fun(temp[i], temp[j]))
+				ft_swap_addr((void**)&temp[i], (void**)&temp[j]);
+			++j;
+		}
+		++i;
+	}
 
-	elft_read_header(elft);
-	elft_read_program_headers(elft);
-	elft_read_section_headers(elft);
-	handle_options(&nm_s, options);
-	lst = ft_nm_body(&nm_s);
-	ft_nm_sort_sym(&lst);
-	ft_nm_print(lst);
-
-	ft_lstclear(&lst, free);
-	nm_s._err = elft_destroy(elft);
-	handle_errors(&nm_s, NM_DESTROY);
-	close(fd);
+	*tab = temp;
 }
 
 int	main(int ac, char** av)
 {
-	int	i = 1;
-	t_nm_options	options = {0};
-	ft_nm_options(&i, &options, ac, av);
-	if (ac - i > 0)
+	if (!av[1])
+		return (1);
+	int		fd = open(av[1], O_RDONLY);
+	if (fd == -1)
+		return (2);
+	t_elf*	elft = elft_init(fd, PROT_READ);
+	elft_read_header(elft);
+	elft_read_section_headers(elft);
+	elft_read_shstrtab(elft);
+
+	t_elf_symfinder*	test = elft_find_next_sym(elft);
+	while (test)
 	{
-		int	i_start = i;
-		for ( ; i < ac ; ++i)
-		{
-			if (ac - i_start > 1)
-				ft_printf("\e[1;36m%s:\e[0m\n", av[i]);
-			ft_nm(av[i], options);
-			if (ac - i_start > 1)
-				write(STDOUT_FILENO, "\n", 1);
-		}
+		elft_free_symfinder(test);
+		test = elft_find_next_sym(elft);
 	}
-	else
-		ft_nm("a.out", options);
+	int	i = 0;
+	int	n = elft_find__get_next_sym_count();
+	t_elf_symfinder**	sf = malloc(n * sizeof(t_elf_symfinder*));
+	elft_find__reset_next_sym_count();
+	while (i < n)
+		sf[i++] = elft_find_next_sym(elft);
+
+	sort_tab(&sf, n, cmpf_alpha_g);
+	print_tab(elft, sf, n);
+
+	if (elft->err == ELFT_SHEADER_NOT_EXIST)
+		printf("Aucun symbole trouvé\n");
+	while (i < n)
+		elft_free_symfinder(sf[i++]);
+	elft_destroy(elft);
 	return (0);
 }

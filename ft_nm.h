@@ -5,49 +5,25 @@
 /*                                                    +:+ +:+         +:+     */
 /*   By: bama <bama@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2025/01/22 15:15:50 by ymanchon          #+#    #+#             */
-/*   Updated: 2025/01/27 18:15:17 by bama             ###   ########.fr       */
+/*   Created: 2025/03/15 11:38:24 by bama              #+#    #+#             */
+/*   Updated: 2025/03/15 17:39:48 by bama             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #ifndef FT_NM_H
 #define FT_NM_H
 
-# define NM_INIT			-1
-# define NM_DESTROY			1
+# include "elft/elft.h"
+# include "libft/libft.h"
+# include <fcntl.h>
 
-# define NM_ELFT_DESTRUCT_FAILED	-2
-# define NM_CLOSE_FAILED			-1
+# define CMP_FUN(name)	int	cmpf_##name(t_elf_symfinder* a, t_elf_symfinder* b)
 
-# ifndef PAGESIZE
-#  define PAGESIZE	_SC_PAGE_SIZE
-# endif
+typedef	int	(*cmpf)(t_elf_symfinder*, t_elf_symfinder*);
 
-# include "libft.h"
-# include "elft.h"
-
-typedef struct s_nm_symbol
-{
-	char*				name;
-	char				type;
-	unsigned long		address;
-}	t_nm_symbol_lst;
-
-typedef struct s_nm_options
-{
-	int	header;
-	int	section_headers;
-	int	program_headers;
-	//int	segment_names;
-}	t_nm_options;
-
-typedef struct s_nm
-{
-	int		_err;
-	t_elf*	elf;
-}	t_nm;
-
-void	ft_nm_options(int* ac_start_index, t_nm_options* options, int ac, char** av);
-int		handle_errors(const t_nm* nm_s, int flag);
+CMP_FUN(alpha_g);
+CMP_FUN(alpha_ng);
+CMP_FUN(addr_g);
+CMP_FUN(addr_ng);
 
 #endif

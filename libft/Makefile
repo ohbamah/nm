@@ -6,7 +6,7 @@
 #    By: bama <bama@student.42.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/05/13 16:21:19 by ymanchon          #+#    #+#              #
-#    Updated: 2025/01/22 23:28:42 by bama             ###   ########.fr        #
+#    Updated: 2025/03/15 12:46:38 by bama             ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -163,7 +163,7 @@ PRINTF_P = ./ft_printf
 # ############## #
 
 #pre_comp
-all:   $(NAME)
+all: check_compilation $(NAME)
 
 $(NAME): $(OBJS)
 	$(LMAKE) $(PRINTF_P) re
@@ -175,6 +175,14 @@ $(OBJS_DIR)/%.o: %.c
 	@mkdir -p $(@D)
 	@echo "$(GREEN)🗸 Compilation $(BOLD)$(YELLOW)$<$(CLASSIC)"
 	$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $@
+
+check_compilation:
+	@if [ -f $(NAME) ] && \
+		[ -n "$(strip $(OBJS))" ] && \
+		[ -z "$$(find $(SRCS) -newer $(NAME) 2>/dev/null)" ]; then \
+		echo "$(BOLD)$(PURPLE)Tous les fichiers $(UNDERLINE)$(YELLOW)$(NAME)$(CLASSIC)$(BOLD)$(PURPLE) sont déjà compilés !$(CLASSIC)"; \
+		exit 0; \
+	fi
 
 clean:
 	@echo "$(BOLD)$(RED)"

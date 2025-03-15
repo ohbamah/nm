@@ -1,29 +1,38 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   ft_calloc.c                                        :+:      :+:    :+:   */
+/*   cmp_funs.c                                         :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: bama <bama@student.42.fr>                  +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2024/03/18 20:09:52 by ymanchon          #+#    #+#             */
-/*   Updated: 2025/03/15 12:48:50 by bama             ###   ########.fr       */
+/*   Created: 2025/03/15 17:38:43 by bama              #+#    #+#             */
+/*   Updated: 2025/03/15 17:48:29 by bama             ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "libft.h"
-#include <limits.h>
+#include "ft_nm.h"
 
-void	*ft_calloc(size_t nmemb, size_t type_size)
+CMP_FUN(alpha_g);
+CMP_FUN(alpha_ng);
+CMP_FUN(addr_g);
+CMP_FUN(addr_ng);
+
+CMP_FUN(alpha_g)
 {
-	void	*ret;
-	size_t	size;
+	return (ft_strcmp(a->name, b->name) < 0);
+}
 
-	size = nmemb * type_size;
-	if (nmemb != 0 && size / nmemb != type_size)
-		return (NULL);
-	ret = malloc(size);
-	if (!ret)
-		return (NULL);
-	ret = ft_memset(ret, 0, size);
-	return (ret);
+CMP_FUN(alpha_ng)
+{
+	return (ft_strcmp(a->name, b->name) > 0);
+}
+
+CMP_FUN(addr_g)
+{
+	return (a->sym->value < b->sym->value);
+}
+
+CMP_FUN(addr_ng)
+{
+	return (a->sym->value > b->sym->value);
 }

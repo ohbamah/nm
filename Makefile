@@ -6,7 +6,7 @@
 #    By: bama <bama@student.42.fr>                  +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/05/13 16:21:19 by ymanchon          #+#    #+#              #
-#    Updated: 2025/01/27 17:58:08 by bama             ###   ########.fr        #
+#    Updated: 2025/03/15 17:40:07 by bama             ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -34,18 +34,10 @@ NAME = ft_nm
 
 CC = @cc
 
-LMAKE = @make --no-print-directory -C
+LMAKE = @make $(1) --no-print-directory -C $(2)
 
-SRCS =	./elf_tools/elft_core.c \
-		./elf_tools/elft_print.c \
-		./elf_tools/elft_utils.c \
-		./elf_tools/elft_read.c \
-		./elf_tools/elft_parsing.c \
-		./elf_tools/elft_lst.c \
-		\
-		./ft_nm_options.c \
-		./errors.c \
-		./ft_nm.c
+SRCS =	./ft_nm.c \
+		./cmp_funs.c
 
 OBJS_DIR = .objs
 
@@ -55,18 +47,24 @@ DEPS = $(OBJS:%.obj=%.d)
 
 CFLAGS = -Wall -Wextra -Wno-unused-result -MMD -g3
 
-INCLUDES = -I$(LIBFT_P) -I. -I./elf_tools/
+INCLUDES = -I. -I$(LIBFT_P) -I$(IELFT_P)
 
+# ############### #
+#*      LIB      *#
+# ############### #
+
+ELFT_P = ./elft/
+ELFTNAME = $(ELFT_P)libelft.a
 LIBFT_P = ./libft/
-LIBNAME = $(LIBFT_P)libft.a
+LIBFTNAME = $(LIBFT_P)libft.a
 
-LIB = -L$(LIBFT_P) -lft
+LIB = -L$(LIBFT_P) -lft -L$(ELFT_P) -lelft
 
 # ############## #
 #*    REGLES    *#
 # ############## #
 
-all: libft_comp $(NAME)
+all: lib check_compilation $(NAME)
 
 $(NAME): $(OBJS)
 	$(CC) $(CFLAGS) $(OBJS) $(LIB) -o $@
@@ -77,6 +75,16 @@ $(OBJS_DIR)/%.obj: %.c
 	@echo "$(GREEN)🗸 Compilation $(BOLD)$(YELLOW)$<$(CLASSIC)"
 	$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $@
 
+check_compilation:
+	@if [ -f $(NAME) ] && \
+		[ -n "$(strip $(OBJS))" ] && \
+		[ -z "$$(find $(SRCS) -newer $(NAME) 2>/dev/null)" ] && \
+		[ ! $(ELFTNAME) -nt $(NAME) ] && \
+		[ ! $(LIBFTNAME) -nt $(NAME) ]; then \
+		echo "$(BOLD)$(PURPLE)Tous les fichiers $(UNDERLINE)$(YELLOW)$(NAME)$(CLASSIC)$(BOLD)$(PURPLE) sont déjà compilés !$(CLASSIC)"; \
+		exit 0; \
+	fi
+
 clean:
 	@echo "$(BOLD)$(RED)"
 	rm $(OBJS_DIR) -rf
@@ -84,14 +92,22 @@ clean:
 
 fclean: clean
 	@echo "$(BOLD)$(RED)"
-	rm $(LIBNAME) -f
+	rm $(LIBFTNAME) -f
+	rm $(ELFTNAME) -f
+	rm $(LIBFT_P).objs/ -rf
+	rm $(ELFT_P).objs/ -rf
 	rm $(NAME) -f
 	@echo "$(BOLD)$(GREEN)Tout a été supprimé... 🗑️\n$(CLASSIC)"
 
-re: fclean all
+re: lib_re clean all
 
-libft_comp:
-	$(LMAKE) $(LIBFT_P)
+lib_re:
+	$(call LMAKE, re, $(LIBFT_P))
+	$(call LMAKE, re, $(ELFT_P))
 
-.PHONY: all clean fclean re libft_comp
+lib:
+	$(call LMAKE, , $(LIBFT_P))
+	$(call LMAKE, , $(ELFT_P))
+
+.PHONY: check_compilation all clean fclean re lib_re lib
 -include $(DEPS)
