@@ -82,24 +82,32 @@ void	sort_tab(t_elf_symfinder*** tab, int n, cmpf fun)
 	*tab = temp;
 }
 
-int	main(int ac, char** av)
+void	ft_nm(char* file_name)
 {
-	if (!av[1])
-		return (1);
-	int		fd = open(av[1], O_RDONLY);
+	int		fd = open(file_name, O_RDONLY);
 	if (fd == -1)
-		return (2);
+		return ;
 	t_elf*	elft = elft_init(fd, PROT_READ);
 	elft_read_header(elft);
 	elft_read_section_headers(elft);
 	elft_read_shstrtab(elft);
+	elft_free_shfinder(elft_find_sectionH_by_name(elft, ".symtab"));
+	if (elft->err == ELFT_SHEADER_NOT_EXIST)
+	{
+		printf("Aucun symbole trouvé\n");
+		elft_destroy(elft);
+		return ;
+	}
 
+	// find symboles
 	t_elf_symfinder*	test = elft_find_next_sym(elft);
 	while (test)
 	{
 		elft_free_symfinder(test);
 		test = elft_find_next_sym(elft);
 	}
+
+		// stock symboles
 	int	i = 0;
 	int	n = elft_find__get_next_sym_count();
 	t_elf_symfinder**	sf = malloc(n * sizeof(t_elf_symfinder*));
@@ -107,13 +115,32 @@ int	main(int ac, char** av)
 	while (i < n)
 		sf[i++] = elft_find_next_sym(elft);
 
+		// nm
 	sort_tab(&sf, n, cmpf_alpha_g);
 	print_tab(elft, sf, n);
 
-	if (elft->err == ELFT_SHEADER_NOT_EXIST)
-		printf("Aucun symbole trouvé\n");
+		// terminate
 	while (i < n)
 		elft_free_symfinder(sf[i++]);
+	free(sf);
 	elft_destroy(elft);
+	close(fd);
+}
+
+int	main(int ac, char** av)
+{
+		// program initialisation
+	if (!av[1])
+		return (1);
+	int	i = 1;
+	while (i < ac )
+	{
+		if (ac > 2)
+			ft_printf("\e[1;36m%s:\e[0m\n", av[i]);
+		ft_nm(av[i]);
+		if (ac > 2)
+			write(STDOUT_FILENO, "\n", 1);
+		++i;
+	}
 	return (0);
 }
