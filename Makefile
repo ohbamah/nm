@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: bama <bama@student.42.fr>                  +#+  +:+       +#+         #
+#    By: ymanchon <ymanchon@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/05/13 16:21:19 by ymanchon          #+#    #+#              #
-#    Updated: 2025/03/15 17:40:07 by bama             ###   ########.fr        #
+#    Updated: 2025/03/17 14:06:11 by ymanchon         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -95,6 +95,7 @@ fclean: clean
 	rm $(LIBFTNAME) -f
 	rm $(ELFTNAME) -f
 	rm $(LIBFT_P).objs/ -rf
+	rm $(LIBFT_P)ft_printf/.objs/ -rf
 	rm $(ELFT_P).objs/ -rf
 	rm $(NAME) -f
 	@echo "$(BOLD)$(GREEN)Tout a été supprimé... 🗑️\n$(CLASSIC)"

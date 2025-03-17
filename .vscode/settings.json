@@ -1,7 +1,0 @@
-{
-	"files.associations": {
-		"libft.h": "c",
-		"ft_nm.h": "c",
-		"elft.h": "c"
-	}
-}

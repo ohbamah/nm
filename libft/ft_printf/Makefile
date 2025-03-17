@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: bama <bama@student.42.fr>                  +#+  +:+       +#+         #
+#    By: ymanchon <ymanchon@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/05/13 16:21:19 by ymanchon          #+#    #+#              #
-#    Updated: 2025/03/15 12:46:44 by bama             ###   ########.fr        #
+#    Updated: 2025/03/17 14:05:40 by ymanchon         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -40,7 +40,7 @@ SRCS =	./srcs/ft_printf_utils.c \
 		./bonus/ft_printf_utils2_bonus.c \
 		./bonus/ft_printf_handle_bonus.c \
 
-OBJS_DIR =		objs
+OBJS_DIR =		.objs
 
 OBJS =	$(SRCS:%.c=$(OBJS_DIR)/%.o)
 

@@ -86,7 +86,10 @@ void	ft_nm(char* file_name)
 {
 	int		fd = open(file_name, O_RDONLY);
 	if (fd == -1)
+	{
+		printf("%sFichier inexistant (ou invalide)%s\n", "\e[31m", "\e[0m");
 		return ;
+	}
 	t_elf*	elft = elft_init(fd, PROT_READ);
 	elft_read_header(elft);
 	elft_read_section_headers(elft);
@@ -94,7 +97,7 @@ void	ft_nm(char* file_name)
 	elft_free_shfinder(elft_find_sectionH_by_name(elft, ".symtab"));
 	if (elft->err == ELFT_SHEADER_NOT_EXIST)
 	{
-		printf("Aucun symbole trouvé\n");
+		printf("%sAucun symbole trouvé%s\n", "\e[31m", "\e[0m");
 		elft_destroy(elft);
 		return ;
 	}
@@ -120,6 +123,7 @@ void	ft_nm(char* file_name)
 	print_tab(elft, sf, n);
 
 		// terminate
+	i = 0;
 	while (i < n)
 		elft_free_symfinder(sf[i++]);
 	free(sf);
@@ -136,7 +140,7 @@ int	main(int ac, char** av)
 	while (i < ac )
 	{
 		if (ac > 2)
-			ft_printf("\e[1;36m%s:\e[0m\n", av[i]);
+			ft_printf("\e[1;45m%s:\e[0m\n", av[i]);
 		ft_nm(av[i]);
 		if (ac > 2)
 			write(STDOUT_FILENO, "\n", 1);

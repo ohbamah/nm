@@ -3,10 +3,10 @@
 #                                                         :::      ::::::::    #
 #    Makefile                                           :+:      :+:    :+:    #
 #                                                     +:+ +:+         +:+      #
-#    By: bama <bama@student.42.fr>                  +#+  +:+       +#+         #
+#    By: ymanchon <ymanchon@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/05/13 16:21:19 by ymanchon          #+#    #+#              #
-#    Updated: 2025/03/15 12:46:38 by bama             ###   ########.fr        #
+#    Updated: 2025/03/17 14:05:36 by ymanchon         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -146,7 +146,7 @@ SRCS = 	./binary_tree/btree_apply_infix.c \
 
 LMAKE = @make --no-print-directory -C
 
-OBJS_DIR =	objs
+OBJS_DIR =	.objs
 
 OBJS =			$(SRCS:%.c=$(OBJS_DIR)/%.o)
 
@@ -167,7 +167,7 @@ all: check_compilation $(NAME)
 
 $(NAME): $(OBJS)
 	$(LMAKE) $(PRINTF_P) re
-	$(AR) -o $@ $(PRINTF_P)/objs/*/*.o
+	$(AR) -o $@ $(PRINTF_P)/.objs/*/*.o
 	$(AR) -o $@ $(OBJS)
 	@echo "$(BOLD)$(CYAN)Bibliothèque $(NAME) créée avec succès!$(CLASSIC)"
 
