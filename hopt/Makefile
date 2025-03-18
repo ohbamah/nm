@@ -6,7 +6,7 @@
 #    By: ymanchon <ymanchon@student.42.fr>          +#+  +:+       +#+         #
 #                                                 +#+#+#+#+#+   +#+            #
 #    Created: 2024/05/13 16:21:19 by ymanchon          #+#    #+#              #
-#    Updated: 2025/03/18 18:24:47 by ymanchon         ###   ########.fr        #
+#    Updated: 2025/03/18 18:21:55 by ymanchon         ###   ########.fr        #
 #                                                                              #
 # **************************************************************************** #
 
@@ -30,14 +30,16 @@ YELLOW 	= \e[38;2;250;189;0m
 #*   VARIABLES   *#
 # ############### #
 
-NAME = ft_nm
+NAME = libhopt.a
+
+AR = @ar -rcs
 
 CC = @cc
 
-LMAKE = @make $(1) --no-print-directory -C $(2)
+LMAKE = @make --no-print-directory -C
 
-SRCS =	./ft_nm.c \
-		./cmp_funs.c
+SRCS =	./srcs/hopt.c \
+		./srcs/utils.c
 
 OBJS_DIR = .objs
 
@@ -45,48 +47,25 @@ OBJS = $(SRCS:%.c=$(OBJS_DIR)/%.obj)
 
 DEPS = $(OBJS:%.obj=%.d)
 
-CFLAGS = -Wall -Wextra -Wno-unused-result -MMD -g3
+CFLAGS = -Wall -Wextra -Wno-unused-result -fPIE -MMD -g3 -Wno-unused-variable -Wno-unused-parameter
 
-INCLUDES = -I. -I$(LIBFT_P)includes/ -I$(IELFT_P)includes/ -I$(HOPT_P)includes/
+INCLUDES = -I. -I./includes/
 
-# ############### #
-#*      LIB      *#
-# ############### #
-
-ELFT_P = ./elft/
-ELFTNAME = $(ELFT_P)libelft.a
-LIBFT_P = ./libft/
-LIBFTNAME = $(LIBFT_P)libft.a
-HOPT_P = ./hopt/
-HOPTNAME = $(HOPT_P)libhopt.a
-
-LIB = -L$(LIBFT_P) -lft -L$(ELFT_P) -lelft -L$(HOPT_P) -lhopt
 
 # ############## #
 #*    REGLES    *#
 # ############## #
 
-all: lib check_compilation $(NAME)
+all: $(NAME)
 
 $(NAME): $(OBJS)
-	$(CC) $(CFLAGS) $(OBJS) $(LIB) -o $@
-	@echo "$(BOLD)$(CYAN)Exécutable $(NAME) créé avec succès!$(CLASSIC)"
+	$(AR) $(NAME) $(OBJS)
+	@echo "$(BOLD)$(CYAN)Librairie $(NAME) créé avec succès!$(CLASSIC)"
 
 $(OBJS_DIR)/%.obj: %.c
 	@mkdir -p $(@D)
 	@echo "$(GREEN)🗸 Compilation $(BOLD)$(YELLOW)$<$(CLASSIC)"
 	$(CC) $(INCLUDES) $(CFLAGS) -c $< -o $@
-
-check_compilation:
-	@if [ -f $(NAME) ] && \
-		[ -n "$(strip $(OBJS))" ] && \
-		[ -z "$$(find $(SRCS) -newer $(NAME) 2>/dev/null)" ] && \
-		[ ! $(ELFTNAME) -nt $(NAME) ] && \
-		[ ! $(HOPTNAME) -nt $(NAME) ] && \
-		[ ! $(LIBFTNAME) -nt $(NAME) ]; then \
-		echo "$(BOLD)$(PURPLE)Tous les fichiers $(UNDERLINE)$(YELLOW)$(NAME)$(CLASSIC)$(BOLD)$(PURPLE) sont déjà compilés !$(CLASSIC)"; \
-		exit 0; \
-	fi
 
 clean:
 	@echo "$(BOLD)$(RED)"
@@ -95,26 +74,14 @@ clean:
 
 fclean: clean
 	@echo "$(BOLD)$(RED)"
-	rm $(LIBFTNAME) -f
-	rm $(ELFTNAME) -f
-	rm $(LIBFT_P).objs/ -rf
-	rm $(LIBFT_P)ft_printf/.objs/ -rf
-	rm $(ELFT_P).objs/ -rf
-	rm $(HOPT_P).objs/ -rf
+	rm $(LIBNAME) -f
 	rm $(NAME) -f
 	@echo "$(BOLD)$(GREEN)Tout a été supprimé... 🗑️\n$(CLASSIC)"
 
-re: lib_re clean all
+re: fclean all
 
-lib_re:
-	$(call LMAKE, re, $(LIBFT_P))
-	$(call LMAKE, re, $(ELFT_P))
-	$(call LMAKE, re, $(HOPT_P))
+libft_comp:
+	$(LMAKE) $(LIBFT_P)
 
-lib:
-	$(call LMAKE, , $(LIBFT_P))
-	$(call LMAKE, , $(ELFT_P))
-	$(call LMAKE, , $(HOPT_P))
-
-.PHONY: check_compilation all clean fclean re lib_re lib
+.PHONY: all clean fclean re libft_comp
 -include $(DEPS)

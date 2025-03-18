@@ -136,6 +136,12 @@ int	main(int ac, char** av)
 		// program initialisation
 	if (!av[1])
 		return (1);
+
+	t_nm_options	opt;
+	memset(&opt, 0, sizeof(t_nm_options));
+	hopt(ac, av, &opt, "c", "c:1");	
+
+	printf("count : %s\n", opt.count);
 	int	i = 1;
 	while (i < ac )
 	{
