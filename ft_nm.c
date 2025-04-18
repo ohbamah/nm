@@ -65,7 +65,6 @@ void	sort_tab(t_elf_symfinder*** tab, int n, cmpf fun)
 	t_elf_symfinder**	temp = *tab;
 	int					i = 0;
 	int					j;
-	int					g;
 
 	while (i < n)
 	{
@@ -137,22 +136,38 @@ int	main(int ac, char** av)
 	if (!av[1])
 		return (1);
 
-	//t_nm_options	opt;
-	//hopt_help_option("h=-help", 1, 0);
-	//hopt_add_option("d")
-	//int count = hopt(ac, av);
-	//ac -= count - 1;
-	//av += count + 1;
-
-	int	i = 1;
-	while (i < ac )
+	t_nm_options	opt;
+	hopt_help_option("h=-help", 1, 0);
+	hopt_add_option("a=-debug-sym", 0, 0, &opt.sys_debug, "Show symbols used for debugging");
+	hopt_add_option("g=-extern-only", 0, 0, &opt.only_extern, "Show only the extern symbols");
+	hopt_add_option("u=-undefined-only", 0, 0, &opt.only_undef, "Show only the undefined symbols");
+	hopt_add_option("U=-defined-only", 0, 0, &opt.only_def, "Show only the undefined symbols");
+	hopt_add_option("r=-reverse-sort", 0, 0, &opt.reverse_sort, "Reverse symbols sorting");
+	hopt_add_option("p=-no-sort", 0, 0, &opt.no_sort, "Not sorting symbols");
+	int count = hopt(ac, av);
+	if (hopt_help_called() == true)
+		return (0);
+	else if (count == -1)
 	{
-		if (ac > 2)
+		char* error = hopt_strerror();
+		printf("%s\n", error);
+		free(error);
+		return (1);
+	}
+	ac -= (count + 1);
+	av += (count + 1);
+
+	int	i = count;
+	int	j = 0;
+	while (j < ac)
+	{
+		if (ac > 1)
 			ft_printf("\e[1;45m%s:\e[0m\n", av[i]);
 		ft_nm(av[i]);
-		if (ac > 2)
+		if (ac > 1)
 			write(STDOUT_FILENO, "\n", 1);
 		++i;
+		++j;
 	}
 	return (0);
 }

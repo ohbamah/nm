@@ -14,6 +14,7 @@
 #define FT_NM_H
 
 # include "elft/elft.h"
+# include <stdbool.h>
 # include "libft/libft.h"
 # include "hopt/hopt.h"
 # include <fcntl.h>
@@ -24,7 +25,12 @@ typedef	int	(*cmpf)(t_elf_symfinder*, t_elf_symfinder*);
 
 typedef struct nm_options
 {
-	char*	count;
+	bool	sys_debug;		// a
+	bool	only_extern;	// g
+	bool	only_undef;		// u
+	bool	only_def;		// U
+	bool	reverse_sort;	// r
+	bool	no_sort;		// p
 }	t_nm_options;
 
 CMP_FUN(alpha_g);
