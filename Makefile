@@ -47,7 +47,7 @@ DEPS = $(OBJS:%.obj=%.d)
 
 CFLAGS = -Wall -Wextra -Wno-unused-result -MMD -g3
 
-INCLUDES = -I. -I$(LIBFT_P)includes/ -I$(IELFT_P)includes/ -I$(HOPT_P)includes/
+INCLUDES = -I. -I$(LIBFT_P)includes/ -I$(IELFT_P)includes/ -I$(HOPT_P)
 
 # ############### #
 #*      LIB      *#
@@ -100,7 +100,6 @@ fclean: clean
 	rm $(LIBFT_P).objs/ -rf
 	rm $(LIBFT_P)ft_printf/.objs/ -rf
 	rm $(ELFT_P).objs/ -rf
-	rm $(HOPT_P).objs/ -rf
 	rm $(NAME) -f
 	@echo "$(BOLD)$(GREEN)Tout a été supprimé... 🗑️\n$(CLASSIC)"
 
@@ -109,12 +108,10 @@ re: lib_re clean all
 lib_re:
 	$(call LMAKE, re, $(LIBFT_P))
 	$(call LMAKE, re, $(ELFT_P))
-	$(call LMAKE, re, $(HOPT_P))
 
 lib:
 	$(call LMAKE, , $(LIBFT_P))
 	$(call LMAKE, , $(ELFT_P))
-	$(call LMAKE, , $(HOPT_P))
 
 .PHONY: check_compilation all clean fclean re lib_re lib
 -include $(DEPS)
